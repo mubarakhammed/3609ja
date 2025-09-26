@@ -1,14 +1,19 @@
 use serde::{Deserialize, Serialize};
+use utoipa::ToSchema;
 
 use crate::domain::entities::address::{Address, AddressValidationRequest, AddressValidationResponse, AddressSuggestion};
 use crate::application::dtos::{StateDto, LgaDto, WardDto, PostalCodeDto};
 
 /// Address DTO for API responses
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct AddressDto {
+    /// State information
     pub state: StateDto,
+    /// Local Government Area information
     pub lga: LgaDto,
+    /// Ward information
     pub ward: WardDto,
+    /// Postal code information
     pub postal_code: PostalCodeDto,
 }
 
@@ -24,11 +29,19 @@ impl From<Address> for AddressDto {
 }
 
 /// Address validation request DTO
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, ToSchema)]
 pub struct AddressValidationRequestDto {
+    /// State name
+    #[schema(example = "Lagos")]
     pub state: String,
+    /// Local Government Area name
+    #[schema(example = "Ikeja")]
     pub lga: String,
+    /// Ward name
+    #[schema(example = "Ikeja")]
     pub ward: String,
+    /// Postal code
+    #[schema(example = "100001")]
     pub postal_code: String,
 }
 
@@ -44,10 +57,14 @@ impl From<AddressValidationRequestDto> for AddressValidationRequest {
 }
 
 /// Address validation response DTO
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, ToSchema)]
 pub struct AddressValidationResponseDto {
+    /// Whether the address is valid
+    #[schema(example = true)]
     pub valid: bool,
+    /// Canonical address if valid
     pub canonical: Option<AddressDto>,
+    /// Suggested corrections if invalid
     pub suggestions: Vec<AddressSuggestionDto>,
 }
 
@@ -62,13 +79,21 @@ impl From<AddressValidationResponse> for AddressValidationResponseDto {
 }
 
 /// Address suggestion DTO
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, ToSchema)]
 pub struct AddressSuggestionDto {
+    /// Suggested state
     pub state: Option<StateDto>,
+    /// Suggested LGA
     pub lga: Option<LgaDto>,
+    /// Suggested ward
     pub ward: Option<WardDto>,
+    /// Suggested postal code
     pub postal_code: Option<PostalCodeDto>,
+    /// Reason for suggestion
+    #[schema(example = "Similar name found")]
     pub reason: String,
+    /// Confidence score (0.0 to 1.0)
+    #[schema(example = 0.85, minimum = 0.0, maximum = 1.0)]
     pub confidence: f64,
 }
 

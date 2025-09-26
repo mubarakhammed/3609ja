@@ -17,11 +17,12 @@ pub struct SearchResultDto {
 }
 
 /// Search use cases
+#[derive(Clone)]
 pub struct SearchUseCases<
-    SR: StateRepository,
-    LR: LgaRepository,
-    WR: WardRepository,
-    PR: PostalCodeRepository,
+    SR: StateRepository + Clone,
+    LR: LgaRepository + Clone,
+    WR: WardRepository + Clone,
+    PR: PostalCodeRepository + Clone,
 > {
     state_repository: SR,
     lga_repository: LR,
@@ -29,7 +30,7 @@ pub struct SearchUseCases<
     postal_code_repository: PR,
 }
 
-impl<SR: StateRepository, LR: LgaRepository, WR: WardRepository, PR: PostalCodeRepository>
+impl<SR: StateRepository + Clone, LR: LgaRepository + Clone, WR: WardRepository + Clone, PR: PostalCodeRepository + Clone>
     SearchUseCases<SR, LR, WR, PR>
 {
     pub fn new(
@@ -65,5 +66,41 @@ impl<SR: StateRepository, LR: LgaRepository, WR: WardRepository, PR: PostalCodeR
             wards: wards.into_iter().map(|w| w.into()).collect(),
             postal_codes: postal_codes.into_iter().map(|p| p.into()).collect(),
         })
+    }
+
+    /// Search states only
+    pub async fn search_states(&self, query: &str, params: PaginationParams) -> AppResult<Vec<StateDto>> {
+        let page = params.page.unwrap_or(1);
+        let limit = params.limit.unwrap_or(20);
+
+        let states = self.state_repository.search(query, page, limit).await?;
+        Ok(states.into_iter().map(|s| s.into()).collect())
+    }
+
+    /// Search LGAs only
+    pub async fn search_lgas(&self, query: &str, params: PaginationParams) -> AppResult<Vec<LgaDto>> {
+        let page = params.page.unwrap_or(1);
+        let limit = params.limit.unwrap_or(20);
+
+        let lgas = self.lga_repository.search(query, page, limit).await?;
+        Ok(lgas.into_iter().map(|l| l.into()).collect())
+    }
+
+    /// Search wards only
+    pub async fn search_wards(&self, query: &str, params: PaginationParams) -> AppResult<Vec<WardDto>> {
+        let page = params.page.unwrap_or(1);
+        let limit = params.limit.unwrap_or(20);
+
+        let wards = self.ward_repository.search(query, page, limit).await?;
+        Ok(wards.into_iter().map(|w| w.into()).collect())
+    }
+
+    /// Search postal codes only
+    pub async fn search_postal_codes(&self, query: &str, params: PaginationParams) -> AppResult<Vec<PostalCodeDto>> {
+        let page = params.page.unwrap_or(1);
+        let limit = params.limit.unwrap_or(20);
+
+        let postal_codes = self.postal_code_repository.search(query, page, limit).await?;
+        Ok(postal_codes.into_iter().map(|p| p.into()).collect())
     }
 }

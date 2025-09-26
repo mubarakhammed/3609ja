@@ -1,4 +1,4 @@
-# Build stage
+# Multi-stage build for Nigeria Geo API
 FROM rust:1.75-slim as builder
 
 # Install system dependencies
@@ -27,7 +27,6 @@ FROM debian:bookworm-slim
 # Install runtime dependencies
 RUN apt-get update && apt-get install -y \
     ca-certificates \
-    libssl3 \
     libpq5 \
     && rm -rf /var/lib/apt/lists/*
 
@@ -56,6 +55,10 @@ EXPOSE 3000
 ENV RUST_LOG=info
 ENV SERVER_HOST=0.0.0.0
 ENV SERVER_PORT=3000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:3000/api/v1/states || exit 1
 
 # Run the application
 CMD ["./nigeria-geo-api"]

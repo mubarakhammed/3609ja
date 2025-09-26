@@ -1,16 +1,27 @@
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
+use utoipa::ToSchema;
 
 use crate::domain::entities::lga::Lga;
 
 /// LGA DTO for API responses
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct LgaDto {
+    /// Unique identifier for the LGA
+    #[schema(example = "650e8400-e29b-41d4-a716-446655440001")]
     pub id: Uuid,
+    /// ID of the parent state
+    #[schema(example = "550e8400-e29b-41d4-a716-446655440001")]
     pub state_id: Uuid,
+    /// Name of the LGA
+    #[schema(example = "Ikeja")]
     pub name: String,
+    /// LGA code (e.g., NG-LA-01)
+    #[schema(example = "NG-LA-01")]
     pub code: String,
+    /// Creation timestamp
     pub created_at: chrono::DateTime<chrono::Utc>,
+    /// Last update timestamp
     pub updated_at: chrono::DateTime<chrono::Utc>,
 }
 

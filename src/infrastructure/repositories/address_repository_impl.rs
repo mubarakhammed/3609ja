@@ -1,13 +1,13 @@
 use async_trait::async_trait;
 use sqlx::PgPool;
 
-use crate::domain::entities::address::{Address, AddressValidationRequest, AddressValidationResponse, AddressSuggestion};
+use crate::domain::entities::address::{
+    Address, AddressSuggestion, AddressValidationRequest, AddressValidationResponse,
+};
 use crate::domain::repositories::address_repository::AddressRepository;
 use crate::domain::repositories::{
-    state_repository::StateRepository,
-    lga_repository::LgaRepository,
-    ward_repository::WardRepository,
-    postal_code_repository::PostalCodeRepository,
+    lga_repository::LgaRepository, postal_code_repository::PostalCodeRepository,
+    state_repository::StateRepository, ward_repository::WardRepository,
 };
 use crate::errors::AppResult;
 
@@ -40,14 +40,21 @@ impl PostgresAddressRepository {
 
 #[async_trait]
 impl AddressRepository for PostgresAddressRepository {
-    async fn validate_address(&self, request: &AddressValidationRequest) -> AppResult<AddressValidationResponse> {
+    async fn validate_address(
+        &self,
+        request: &AddressValidationRequest,
+    ) -> AppResult<AddressValidationResponse> {
         // Find exact matches for each component
         let state = self.state_repo.find_by_name(&request.state).await?;
         let lga = self.lga_repo.find_by_name(&request.lga).await?;
         let ward = self.ward_repo.find_by_name(&request.ward).await?;
-        let postal_code_value = crate::domain::value_objects::PostalCode::new(request.postal_code.clone())
-            .map_err(|e| crate::errors::AppError::Internal(anyhow::anyhow!(e)))?;
-        let postal_code = self.postal_code_repo.find_by_code(&postal_code_value).await?;
+        let postal_code_value =
+            crate::domain::value_objects::PostalCode::new(request.postal_code.clone())
+                .map_err(|e| crate::errors::AppError::Internal(anyhow::anyhow!(e)))?;
+        let postal_code = self
+            .postal_code_repo
+            .find_by_code(&postal_code_value)
+            .await?;
 
         // Check if all components exist and form a valid address
         let is_valid = state.is_some() && lga.is_some() && ward.is_some() && postal_code.is_some();
@@ -89,9 +96,13 @@ impl AddressRepository for PostgresAddressRepository {
         let state_entity = self.state_repo.find_by_name(state).await?;
         let lga_entity = self.lga_repo.find_by_name(lga).await?;
         let ward_entity = self.ward_repo.find_by_name(ward).await?;
-        let postal_code_value = crate::domain::value_objects::PostalCode::new(postal_code.to_string())
-            .map_err(|e| crate::errors::AppError::Internal(anyhow::anyhow!(e)))?;
-        let postal_code_entity = self.postal_code_repo.find_by_code(&postal_code_value).await?;
+        let postal_code_value =
+            crate::domain::value_objects::PostalCode::new(postal_code.to_string())
+                .map_err(|e| crate::errors::AppError::Internal(anyhow::anyhow!(e)))?;
+        let postal_code_entity = self
+            .postal_code_repo
+            .find_by_code(&postal_code_value)
+            .await?;
 
         match (state_entity, lga_entity, ward_entity, postal_code_entity) {
             (Some(state), Some(lga), Some(ward), Some(postal_code)) => {
@@ -101,7 +112,10 @@ impl AddressRepository for PostgresAddressRepository {
         }
     }
 
-    async fn find_similar_addresses(&self, request: &AddressValidationRequest) -> AppResult<Vec<Address>> {
+    async fn find_similar_addresses(
+        &self,
+        request: &AddressValidationRequest,
+    ) -> AppResult<Vec<Address>> {
         // Search for similar addresses using fuzzy matching
         let mut similar_addresses = Vec::new();
 
@@ -117,7 +131,10 @@ impl AddressRepository for PostgresAddressRepository {
                     for ward in wards {
                         if ward.lga_id == lga.id {
                             // Search for postal codes in this ward
-                            let postal_codes = self.postal_code_repo.search(&request.postal_code, 1, 10).await?;
+                            let postal_codes = self
+                                .postal_code_repo
+                                .search(&request.postal_code, 1, 10)
+                                .await?;
                             for postal_code in postal_codes {
                                 if postal_code.ward_id == ward.id {
                                     similar_addresses.push(Address::new(
@@ -139,7 +156,10 @@ impl AddressRepository for PostgresAddressRepository {
 }
 
 impl PostgresAddressRepository {
-    async fn generate_suggestions(&self, request: &AddressValidationRequest) -> AppResult<Vec<AddressSuggestion>> {
+    async fn generate_suggestions(
+        &self,
+        request: &AddressValidationRequest,
+    ) -> AppResult<Vec<AddressSuggestion>> {
         let mut suggestions = Vec::new();
 
         // Find similar states
@@ -182,7 +202,10 @@ impl PostgresAddressRepository {
         }
 
         // Find similar postal codes
-        let postal_codes = self.postal_code_repo.search(&request.postal_code, 1, 5).await?;
+        let postal_codes = self
+            .postal_code_repo
+            .search(&request.postal_code, 1, 5)
+            .await?;
         for postal_code in postal_codes {
             suggestions.push(AddressSuggestion {
                 state: None,

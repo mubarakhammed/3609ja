@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   # PostgreSQL Database
@@ -41,7 +41,7 @@ services:
       - nigeria-geo-network
     restart: unless-stopped
 
-  # Redis (for future caching)
+  # Redis (for caching and rate limiting)
   redis:
     image: redis:7-alpine
     container_name: nigeria-geo-redis

@@ -30,6 +30,11 @@ impl<R: PostalCodeRepository + Clone> PostalCodeUseCases<R> {
         Ok(PaginatedResponse::new(postal_code_dtos, page, limit, total))
     }
 
+    /// Get postal codes by ward ID with pagination (alternative method name)
+    pub async fn get_postal_codes_by_ward_id(&self, ward_id: Uuid, params: PaginationParams) -> AppResult<PaginatedResponse<PostalCodeDto>> {
+        self.get_postal_codes_by_ward(ward_id, params).await
+    }
+
     /// Get postal code by ID
     pub async fn get_postal_code_by_id(&self, id: Uuid) -> AppResult<Option<PostalCodeDto>> {
         let postal_code = self.postal_code_repository.find_by_id(id).await?;
@@ -50,6 +55,12 @@ impl<R: PostalCodeRepository + Clone> PostalCodeUseCases<R> {
         let coordinates = Coordinates::new(lat, lng)
             .map_err(|e| crate::errors::AppError::Internal(anyhow::anyhow!(e)))?;
         
+        let postal_codes = self.postal_code_repository.find_near_coordinates(&coordinates, radius_km).await?;
+        Ok(postal_codes.into_iter().map(|p| p.into()).collect())
+    }
+
+    /// Find postal codes near coordinates (alternative method name)
+    pub async fn find_near_coordinates(&self, coordinates: Coordinates, radius_km: f64) -> AppResult<Vec<PostalCodeDto>> {
         let postal_codes = self.postal_code_repository.find_near_coordinates(&coordinates, radius_km).await?;
         Ok(postal_codes.into_iter().map(|p| p.into()).collect())
     }

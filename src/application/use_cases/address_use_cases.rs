@@ -1,6 +1,6 @@
+use crate::application::dtos::address_dto::{AddressDto, AddressValidationResponseDto};
 use crate::domain::entities::address::AddressValidationRequest;
 use crate::domain::repositories::address_repository::AddressRepository;
-use crate::application::dtos::address_dto::{AddressValidationResponseDto, AddressDto};
 use crate::errors::AppResult;
 
 /// Address use cases
@@ -14,7 +14,10 @@ impl<R: AddressRepository> AddressUseCases<R> {
     }
 
     /// Validate an address
-    pub async fn validate_address(&self, request: AddressValidationRequest) -> AppResult<AddressValidationResponseDto> {
+    pub async fn validate_address(
+        &self,
+        request: AddressValidationRequest,
+    ) -> AppResult<AddressValidationResponseDto> {
         let response = self.address_repository.validate_address(&request).await?;
         Ok(response.into())
     }
@@ -27,13 +30,22 @@ impl<R: AddressRepository> AddressUseCases<R> {
         ward: &str,
         postal_code: &str,
     ) -> AppResult<Option<AddressDto>> {
-        let address = self.address_repository.find_by_components(state, lga, ward, postal_code).await?;
+        let address = self
+            .address_repository
+            .find_by_components(state, lga, ward, postal_code)
+            .await?;
         Ok(address.map(|a| a.into()))
     }
 
     /// Find similar addresses
-    pub async fn find_similar_addresses(&self, request: AddressValidationRequest) -> AppResult<Vec<AddressDto>> {
-        let addresses = self.address_repository.find_similar_addresses(&request).await?;
+    pub async fn find_similar_addresses(
+        &self,
+        request: AddressValidationRequest,
+    ) -> AppResult<Vec<AddressDto>> {
+        let addresses = self
+            .address_repository
+            .find_similar_addresses(&request)
+            .await?;
         Ok(addresses.into_iter().map(|a| a.into()).collect())
     }
 }

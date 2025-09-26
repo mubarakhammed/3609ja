@@ -1,76 +1,70 @@
-use crate::infrastructure::repositories::{
-    state_repository_impl::PostgresStateRepository,
-    lga_repository_impl::PostgresLgaRepository,
-    ward_repository_impl::PostgresWardRepository,
-    postal_code_repository_impl::PostgresPostalCodeRepository,
-    address_repository_impl::PostgresAddressRepository,
+use crate::infrastructure::{
+    cache::CacheClient,
+    cached_services::CachedServices,
+    repositories::{
+        address_repository_impl::PostgresAddressRepository,
+        lga_repository_impl::PostgresLgaRepository,
+        postal_code_repository_impl::PostgresPostalCodeRepository,
+        state_repository_impl::PostgresStateRepository,
+        ward_repository_impl::PostgresWardRepository,
+    },
 };
 
-use crate::application::use_cases::{
-    state_use_cases::StateUseCases,
-    lga_use_cases::LgaUseCases,
-    ward_use_cases::WardUseCases,
-    postal_code_use_cases::PostalCodeUseCases,
-    address_use_cases::AddressUseCases,
-    search_use_cases::SearchUseCases,
-};
+use crate::application::use_cases::address_use_cases::AddressUseCases;
+use std::sync::Arc;
 
-use crate::presentation::controllers::{
-    state_controller::StateController,
-    lga_controller::LgaController,
-    ward_controller::WardController,
-    postal_code_controller::PostalCodeController,
-    address_controller::AddressController,
-    search_controller::SearchController,
-};
-
-/// Unified application state containing all controllers
+/// Unified application state with caching support
 #[derive(Clone)]
 pub struct AppState {
-    pub state_controller: StateController<PostgresStateRepository>,
-    pub lga_controller: LgaController<PostgresLgaRepository>,
-    pub ward_controller: WardController<PostgresWardRepository>,
-    pub postal_code_controller: PostalCodeController<PostgresPostalCodeRepository>,
-    pub address_controller: AddressController<PostgresAddressRepository>,
-    pub search_controller: SearchController<PostgresStateRepository, PostgresLgaRepository, PostgresWardRepository, PostgresPostalCodeRepository>,
+    /// Cached services for frequently accessed data
+    pub cached_services: CachedServices,
+    /// Non-cached services for operations that shouldn't be cached
+    pub address_use_cases: Arc<AddressUseCases<PostgresAddressRepository>>,
 }
 
 impl AppState {
     pub fn new(
+        cache: CacheClient,
         state_repository: PostgresStateRepository,
         lga_repository: PostgresLgaRepository,
         ward_repository: PostgresWardRepository,
         postal_code_repository: PostgresPostalCodeRepository,
         address_repository: PostgresAddressRepository,
     ) -> Self {
+        use crate::application::use_cases::{
+            lga_use_cases::LgaUseCases, postal_code_use_cases::PostalCodeUseCases,
+            search_use_cases::SearchUseCases, state_use_cases::StateUseCases,
+            ward_use_cases::WardUseCases,
+        };
+
         // Initialize use cases
         let state_use_cases = StateUseCases::new(state_repository.clone());
         let lga_use_cases = LgaUseCases::new(lga_repository.clone());
         let ward_use_cases = WardUseCases::new(ward_repository.clone());
         let postal_code_use_cases = PostalCodeUseCases::new(postal_code_repository.clone());
-        let address_use_cases = AddressUseCases::new(address_repository);
         let search_use_cases = SearchUseCases::new(
-            state_repository.clone(),
-            lga_repository.clone(),
-            ward_repository.clone(),
-            postal_code_repository.clone(),
+            state_repository,
+            lga_repository,
+            ward_repository,
+            postal_code_repository,
         );
 
-        // Initialize controllers
-        let state_controller = StateController::new(state_use_cases);
-        let lga_controller = LgaController::new(lga_use_cases);
-        let ward_controller = WardController::new(ward_use_cases);
-        let postal_code_controller = PostalCodeController::new(postal_code_use_cases);
-        let address_controller = AddressController::new(address_use_cases);
-        let search_controller = SearchController::new(search_use_cases);
+        // Initialize cached services
+        let cached_services = CachedServices::new(
+            cache,
+            state_use_cases,
+            lga_use_cases,
+            ward_use_cases,
+            postal_code_use_cases,
+            search_use_cases,
+        );
+
+        // Address use cases don't need caching (they're for validation/complex operations)
+        let address_use_cases = Arc::new(AddressUseCases::new(address_repository));
 
         Self {
-            state_controller,
-            lga_controller,
-            ward_controller,
-            postal_code_controller,
-            address_controller,
-            search_controller,
+            cached_services,
+            address_use_cases,
         }
     }
 }

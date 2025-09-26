@@ -6,9 +6,10 @@ use crate::domain::repositories::{
 };
 use crate::application::dtos::{StateDto, LgaDto, WardDto, PostalCodeDto, PaginationParams};
 use crate::errors::AppResult;
+use utoipa::ToSchema;
 
 /// Search result DTO
-#[derive(Debug, serde::Serialize)]
+#[derive(Debug, serde::Serialize, serde::Deserialize, ToSchema)]
 pub struct SearchResultDto {
     pub states: Vec<StateDto>,
     pub lgas: Vec<LgaDto>,

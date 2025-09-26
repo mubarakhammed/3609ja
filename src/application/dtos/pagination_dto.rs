@@ -22,8 +22,8 @@ impl Default for PaginationParams {
 }
 
 /// Paginated response
-#[derive(Debug, Serialize, ToSchema)]
-pub struct PaginatedResponse<T: ToSchema> {
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+pub struct PaginatedResponse<T: for<'a> ToSchema<'a>> {
     /// Array of data items
     pub data: Vec<T>,
     /// Pagination metadata
@@ -31,7 +31,7 @@ pub struct PaginatedResponse<T: ToSchema> {
 }
 
 /// Pagination metadata
-#[derive(Debug, Serialize, ToSchema)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct PaginationMeta {
     /// Current page number
     #[schema(example = 1)]
@@ -53,7 +53,7 @@ pub struct PaginationMeta {
     pub has_prev: bool,
 }
 
-impl<T> PaginatedResponse<T> {
+impl<T: for<'a> ToSchema<'a>> PaginatedResponse<T> {
     pub fn new(data: Vec<T>, page: u32, limit: u32, total: u64) -> Self {
         let total_pages = (total as f64 / limit as f64).ceil() as u32;
         

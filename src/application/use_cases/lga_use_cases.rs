@@ -29,6 +29,11 @@ impl<R: LgaRepository + Clone> LgaUseCases<R> {
         Ok(PaginatedResponse::new(lga_dtos, page, limit, total))
     }
 
+    /// Get LGAs by state ID with pagination (alternative method name)
+    pub async fn get_lgas_by_state_id(&self, state_id: Uuid, params: PaginationParams) -> AppResult<PaginatedResponse<LgaDto>> {
+        self.get_lgas_by_state(state_id, params).await
+    }
+
     /// Get LGA by ID
     pub async fn get_lga_by_id(&self, id: Uuid) -> AppResult<Option<LgaDto>> {
         let lga = self.lga_repository.find_by_id(id).await?;

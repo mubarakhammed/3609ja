@@ -29,6 +29,11 @@ impl<R: WardRepository + Clone> WardUseCases<R> {
         Ok(PaginatedResponse::new(ward_dtos, page, limit, total))
     }
 
+    /// Get wards by LGA ID with pagination (alternative method name)
+    pub async fn get_wards_by_lga_id(&self, lga_id: Uuid, params: PaginationParams) -> AppResult<PaginatedResponse<WardDto>> {
+        self.get_wards_by_lga(lga_id, params).await
+    }
+
     /// Get ward by ID
     pub async fn get_ward_by_id(&self, id: Uuid) -> AppResult<Option<WardDto>> {
         let ward = self.ward_repository.find_by_id(id).await?;

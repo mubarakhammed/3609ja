@@ -5,12 +5,13 @@ use axum::{
 };
 use serde_json::json;
 use thiserror::Error;
+use utoipa::ToSchema;
 
 /// Application result type
 pub type AppResult<T> = Result<T, AppError>;
 
 /// Main application error type
-#[derive(Error, Debug)]
+#[derive(Error, Debug, ToSchema)]
 pub enum AppError {
     #[error("Database error: {0}")]
     Database(#[from] sqlx::Error),
@@ -29,6 +30,9 @@ pub enum AppError {
     
     #[error("Serialization error: {0}")]
     Serialization(#[from] serde_json::Error),
+    
+    #[error("Coordinates error: {0}")]
+    Coordinates(#[from] crate::domain::value_objects::CoordinatesError),
 }
 
 impl IntoResponse for AppError {
@@ -40,6 +44,7 @@ impl IntoResponse for AppError {
             AppError::Internal(_) => (StatusCode::INTERNAL_SERVER_ERROR, "Internal server error"),
             AppError::Config(_) => (StatusCode::INTERNAL_SERVER_ERROR, "Configuration error"),
             AppError::Serialization(_) => (StatusCode::BAD_REQUEST, "Invalid data format"),
+            AppError::Coordinates(_) => (StatusCode::BAD_REQUEST, "Invalid coordinates"),
         };
 
         let body = Json(json!({

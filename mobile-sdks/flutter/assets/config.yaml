@@ -1,0 +1,23 @@
+# Nigeria Geo SDK Configuration
+# This file contains configuration settings for the SDK
+
+# API Configuration
+api:
+  base_url: "http://localhost:3000"
+  timeout: 30000 # milliseconds
+
+# Caching Configuration
+cache:
+  enabled: true
+  expiration_hours: 24
+  max_size_mb: 50
+
+# Logging Configuration
+logging:
+  enabled: true
+  level: "info" # debug, info, warn, error
+
+# Location Services
+location:
+  request_permission: true
+  accuracy: "high" # low, medium, high

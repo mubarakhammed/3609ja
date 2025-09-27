@@ -1,0 +1,67 @@
+name: nigeria_geo_sdk
+description: Cross-platform Flutter SDK for Nigerian geographic data API
+version: 1.0.0
+homepage: https://github.com/your-org/nigeria-geo-api
+repository: https://github.com/your-org/nigeria-geo-api
+documentation: https://docs.nigeria-geo.com/flutter
+
+environment:
+  sdk: ">=2.17.0 <4.0.0"
+  flutter: ">=3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # HTTP client
+  http: ^0.13.5
+
+  # JSON serialization
+  json_annotation: ^4.8.0
+
+  # Caching
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+
+  # Path provider for cache directory
+  path_provider: ^2.0.14
+
+  # Logging
+  logger: ^1.3.0
+
+  # Stream utilities
+  rxdart: ^0.27.7
+
+  # Location services (optional)
+  geolocator: ^9.0.2
+
+  # Permissions (optional)
+  permission_handler: ^10.2.0
+
+  # YAML configuration
+  yaml: ^3.1.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  # Code generation
+  build_runner: ^2.4.4
+  json_serializable: ^6.6.2
+  hive_generator: ^2.0.0
+
+  # Linting
+  flutter_lints: ^2.0.1
+
+  # Testing
+  mockito: ^5.4.0
+
+  # Integration testing
+  integration_test:
+    sdk: flutter
+
+flutter:
+  assets:
+    - assets/config.yaml
+# Uncomment if dependency overrides are needed
+# dependency_overrides:

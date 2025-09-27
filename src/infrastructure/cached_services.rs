@@ -416,4 +416,9 @@ impl CachedServices {
     > {
         &self.search_use_cases
     }
+
+    /// Access to the cache client for health checks and direct operations
+    pub fn cache_client(&self) -> &CacheClient {
+        &self.cache
+    }
 }

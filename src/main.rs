@@ -21,6 +21,7 @@ use nigeria_geo_api::{
         ward_repository_impl::PostgresWardRepository,
     },
     presentation::{
+        handlers::health_check_handler,
         handlers_simple::{
             find_address_by_components_handler, find_nearby_postal_codes_handler,
             find_similar_addresses_handler, get_lga_by_id_handler, get_lgas_by_state_handler,
@@ -91,6 +92,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         ward_repository,
         postal_code_repository,
         address_repository,
+        pool.clone(),
     );
 
     // Create CORS layer
@@ -101,6 +103,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Create the application router with all endpoints
     let app = Router::new()
+        // Health endpoint
+        .route("/api/v1/health", get(health_check_handler))
         // States endpoints
         .route("/api/v1/states", get(get_states_handler))
         .route("/api/v1/states/:id", get(get_state_by_id_handler))

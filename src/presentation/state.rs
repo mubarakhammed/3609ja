@@ -11,6 +11,7 @@ use crate::infrastructure::{
 };
 
 use crate::application::use_cases::address_use_cases::AddressUseCases;
+use sqlx::PgPool;
 use std::sync::Arc;
 
 /// Unified application state with caching support
@@ -20,6 +21,8 @@ pub struct AppState {
     pub cached_services: CachedServices,
     /// Non-cached services for operations that shouldn't be cached
     pub address_use_cases: Arc<AddressUseCases<PostgresAddressRepository>>,
+    /// Database connection pool for health checks and direct access
+    pub pool: PgPool,
 }
 
 impl AppState {
@@ -30,6 +33,7 @@ impl AppState {
         ward_repository: PostgresWardRepository,
         postal_code_repository: PostgresPostalCodeRepository,
         address_repository: PostgresAddressRepository,
+        pool: PgPool,
     ) -> Self {
         use crate::application::use_cases::{
             lga_use_cases::LgaUseCases, postal_code_use_cases::PostalCodeUseCases,
@@ -65,6 +69,12 @@ impl AppState {
         Self {
             cached_services,
             address_use_cases,
+            pool,
         }
+    }
+
+    /// Access to the database pool for health checks
+    pub fn database_pool(&self) -> &sqlx::PgPool {
+        &self.pool
     }
 }

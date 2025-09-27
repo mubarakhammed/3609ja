@@ -1,0 +1,41 @@
+{
+    "name": "nigeria-geo-sdk",
+    "version": "1.0.0",
+    "description": "Zero-config React Native SDK for Nigerian geographical data",
+    "main": "index.ts",
+    "types": "index.ts",
+    "exports": {
+        ".": "./index.ts"
+    },
+    "keywords": [
+        "nigeria",
+        "geography",
+        "states",
+        "lga",
+        "wards",
+        "postal-codes",
+        "react-native",
+        "expo"
+    ],
+    "author": "Nigeria Geo API",
+    "license": "MIT",
+    "scripts": {
+        "build": "tsc",
+        "test": "jest"
+    },
+    "peerDependencies": {
+        "react": ">=18.0.0",
+        "react-native": ">=0.70.0",
+        "@react-native-picker/picker": ">=2.0.0",
+        "react-native-paper": ">=5.0.0"
+    },
+    "devDependencies": {
+        "@types/react": "~19.1.0",
+        "typescript": "~5.9.2"
+    },
+    "files": [
+        "src/",
+        "index.ts",
+        "README.md"
+    ]
+}

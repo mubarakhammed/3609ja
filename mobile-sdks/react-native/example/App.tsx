@@ -1,10 +1,5 @@
-/**
- * Nigeria Geo SDK Demo App - React Native
- * Exact same design as Flutter version with 4 tabs
- */
-
 import React, { useState, useEffect } from 'react';
-import { ScrollView, StyleSheet, View, Alert, Text as RNText } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import {
   Provider as PaperProvider,
@@ -13,22 +8,16 @@ import {
   Text,
   Button,
   TextInput,
-  Divider,
-  Chip,
-  Surface,
-  ActivityIndicator,
-  SegmentedButtons
+  SegmentedButtons,
+  List,
+  ActivityIndicator
 } from 'react-native-paper';
+import { Picker } from '@react-native-picker/picker';
 
-// Import SDK from package
-import { NigeriaGeoSDK } from 'nigeria-geo-sdk';
-import {
-  StateDropdown,
-  LgaDropdown,
-  WardDropdown,
-  PostalCodeDropdown
-} from 'nigeria-geo-sdk';
-import { State, Lga, Ward, PostalCode, SearchResult } from 'nigeria-geo-sdk'; export default function App() {
+// Import the SDK - zero config!
+import { nigeriaGeoSDK, State, Lga, Ward, PostalCode, SearchResult } from 'nigeria-geo-sdk';
+
+export default function App() {
   const [selectedTab, setSelectedTab] = useState('api');
 
   return (
@@ -40,115 +29,80 @@ import { State, Lga, Ward, PostalCode, SearchResult } from 'nigeria-geo-sdk'; ex
         />
       </Appbar.Header>
 
-      <Surface style={styles.tabContainer}>
+      <View style={styles.container}>
         <SegmentedButtons
           value={selectedTab}
           onValueChange={setSelectedTab}
           buttons={[
-            { value: 'api', label: 'API', icon: 'api' },
-            { value: 'widgets', label: 'Widgets', icon: 'widgets' },
-            { value: 'address', label: 'Address', icon: 'map-marker' },
-            { value: 'search', label: 'Search', icon: 'magnify' },
+            { value: 'api', label: 'API Demo' },
+            { value: 'widgets', label: 'Widgets' },
+            { value: 'address', label: 'Address' },
+            { value: 'search', label: 'Search' },
           ]}
-          style={styles.segmentedButtons}
+          style={styles.tabs}
         />
-      </Surface>
 
-      <ScrollView style={styles.container}>
-        {selectedTab === 'api' && <APIDemo />}
-        {selectedTab === 'widgets' && <WidgetsDemo />}
-        {selectedTab === 'address' && <AddressDemo />}
-        {selectedTab === 'search' && <SearchDemo />}
-      </ScrollView>
+        <ScrollView style={styles.content}>
+          {selectedTab === 'api' && <ApiDemoTab />}
+          {selectedTab === 'widgets' && <WidgetsTab />}
+          {selectedTab === 'address' && <AddressTab />}
+          {selectedTab === 'search' && <SearchTab />}
+        </ScrollView>
+      </View>
 
-      <StatusBar style="light" />
+      <StatusBar style="auto" />
     </PaperProvider>
   );
 }
 
-// API Demo Tab - Test raw API calls
-function APIDemo() {
-  const [output, setOutput] = useState('Tap a button to test the API...');
-  const [isLoading, setIsLoading] = useState(false);
-  const sdk = NigeriaGeoSDK.getInstance();
+function ApiDemoTab() {
+  const [states, setStates] = useState<State[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  const testAPI = async (apiCall: () => Promise<any>, description: string) => {
-    setIsLoading(true);
-    setOutput(`Testing ${description}...`);
+  const loadStates = async () => {
+    setLoading(true);
     try {
-      const result = await apiCall();
-      setOutput(`✅ ${description}\n\n${JSON.stringify(result, null, 2)}`);
+      const data = await nigeriaGeoSDK.getStates();
+      setStates(data);
     } catch (error) {
-      setOutput(`❌ ${description} failed:\n${error instanceof Error ? error.message : 'Unknown error'}`);
+      console.error('Error loading states:', error);
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
-  return (
-    <View style={styles.tabContent}>
-      <Card style={styles.card}>
-        <Card.Title title="API Testing" subtitle="Test direct SDK API calls" />
-        <Card.Content>
-          <View style={styles.buttonRow}>
-            <Button
-              mode="contained"
-              onPress={() => testAPI(() => sdk.getStates(), 'Get All States')}
-              style={styles.apiButton}
-              disabled={isLoading}
-            >
-              States
-            </Button>
-            <Button
-              mode="contained"
-              onPress={() => testAPI(() => sdk.getLgas(25), 'Get Lagos LGAs')}
-              style={styles.apiButton}
-              disabled={isLoading}
-            >
-              LGAs
-            </Button>
-          </View>
-          <View style={styles.buttonRow}>
-            <Button
-              mode="contained"
-              onPress={() => testAPI(() => sdk.getWards(317), 'Get Ikeja Wards')}
-              style={styles.apiButton}
-              disabled={isLoading}
-            >
-              Wards
-            </Button>
-            <Button
-              mode="contained"
-              onPress={() => testAPI(() => sdk.getPostalCodes(25), 'Get Lagos Postal Codes')}
-              style={styles.apiButton}
-              disabled={isLoading}
-            >
-              Postal
-            </Button>
-          </View>
-          <Button
-            mode="outlined"
-            onPress={() => testAPI(() => sdk.search('lagos'), 'Search "lagos"')}
-            style={styles.fullButton}
-            disabled={isLoading}
-          >
-            Search Test
-          </Button>
-        </Card.Content>
-      </Card>
+  useEffect(() => {
+    loadStates();
+  }, []);
 
+  return (
+    <View>
       <Card style={styles.card}>
-        <Card.Title title="API Response" />
+        <Card.Title title="States API" />
         <Card.Content>
-          {isLoading ? (
-            <View style={styles.loadingContainer}>
-              <ActivityIndicator size="large" />
-              <Text style={styles.loadingText}>Testing API...</Text>
-            </View>
-          ) : (
-            <Surface style={styles.outputContainer}>
-              <RNText style={styles.outputText}>{output}</RNText>
-            </Surface>
+          <Button onPress={loadStates} mode="contained" disabled={loading}>
+            {loading ? 'Loading...' : 'Reload States'}
+          </Button>
+
+          {loading && <ActivityIndicator style={styles.loader} />}
+
+          <Text style={styles.resultsTitle}>
+            Results ({states.length} states):
+          </Text>
+
+          {states.slice(0, 5).map((state) => (
+            <List.Item
+              key={state.id}
+              title={state.name}
+              description={`Code: ${state.code}`}
+              left={(props) => <List.Icon {...props} icon="map" />}
+            />
+          ))}
+
+          {states.length > 5 && (
+            <Text style={styles.moreText}>
+              ... and {states.length - 5} more states
+            </Text>
           )}
         </Card.Content>
       </Card>
@@ -156,20 +110,19 @@ function APIDemo() {
   );
 }
 
-// Widgets Demo Tab - Test UI components
-function WidgetsDemo() {
+function WidgetsTab() {
   const [selectedState, setSelectedState] = useState<State | null>(null);
   const [selectedLga, setSelectedLga] = useState<Lga | null>(null);
   const [selectedWard, setSelectedWard] = useState<Ward | null>(null);
-  const [selectedPostalCode, setSelectedPostalCode] = useState<PostalCode | null>(null);
 
   return (
-    <View style={styles.tabContent}>
+    <View>
       <Card style={styles.card}>
-        <Card.Title title="UI Widgets Demo" subtitle="Test pre-built components" />
+        <Card.Title title="Hierarchical Geographic Dropdowns" />
         <Card.Content>
+          <Text style={styles.stepTitle}>1. Select State:</Text>
           <StateDropdown
-            onStateChange={(state: State | null) => {
+            onStateChange={(state) => {
               setSelectedState(state);
               setSelectedLga(null);
               setSelectedWard(null);
@@ -177,155 +130,44 @@ function WidgetsDemo() {
             selectedState={selectedState}
           />
 
+          <Text style={styles.stepTitle}>2. Select LGA:</Text>
           <LgaDropdown
-            stateId={selectedState?.id}
-            onLgaChange={(lga: Lga | null) => {
+            stateId={selectedState?.id || ''}
+            onLgaChange={(lga) => {
               setSelectedLga(lga);
               setSelectedWard(null);
             }}
             selectedLga={selectedLga}
           />
 
+          <Text style={styles.stepTitle}>3. Select Ward:</Text>
           <WardDropdown
             lgaId={selectedLga?.id}
             onWardChange={setSelectedWard}
             selectedWard={selectedWard}
           />
 
-          <PostalCodeDropdown
-            stateId={selectedState?.id}
-            onPostalCodeChange={setSelectedPostalCode}
-            selectedPostalCode={selectedPostalCode}
-          />
-        </Card.Content>
-      </Card>
-
-      {(selectedState || selectedLga || selectedWard || selectedPostalCode) && (
-        <Card style={styles.card}>
-          <Card.Title title="Selected Values" />
-          <Card.Content>
-            {selectedState && (
-              <Chip style={styles.chip} icon="map-marker">
-                State: {selectedState.name} ({selectedState.code})
-              </Chip>
-            )}
-            {selectedLga && (
-              <Chip style={styles.chip} icon="city">
-                LGA: {selectedLga.name}
-              </Chip>
-            )}
-            {selectedWard && (
-              <Chip style={styles.chip} icon="home-city">
-                Ward: {selectedWard.name}
-              </Chip>
-            )}
-            {selectedPostalCode && (
-              <Chip style={styles.chip} icon="mailbox">
-                Postal: {selectedPostalCode.code} - {selectedPostalCode.area}
-              </Chip>
-            )}
-          </Card.Content>
-        </Card>
-      )}
-    </View>
-  );
-}
-
-// Address Demo Tab - Address validation
-function AddressDemo() {
-  const [selectedState, setSelectedState] = useState<State | null>(null);
-  const [selectedLga, setSelectedLga] = useState<Lga | null>(null);
-  const [selectedWard, setSelectedWard] = useState<Ward | null>(null);
-  const [selectedPostalCode, setSelectedPostalCode] = useState<PostalCode | null>(null);
-  const [validationResult, setValidationResult] = useState<boolean | null>(null);
-  const [validationLoading, setValidationLoading] = useState(false);
-
-  const sdk = NigeriaGeoSDK.getInstance();
-
-  const validateAddress = async () => {
-    if (!selectedState && !selectedLga && !selectedWard && !selectedPostalCode) {
-      Alert.alert('Validation Error', 'Please select at least one geographical component');
-      return;
-    }
-
-    setValidationLoading(true);
-    try {
-      const isValid = await sdk.validateAddress(
-        selectedState?.name,
-        selectedLga?.name,
-        selectedWard?.name,
-        selectedPostalCode?.code
-      );
-      setValidationResult(isValid);
-    } catch (error) {
-      Alert.alert('Validation Error', error instanceof Error ? error.message : 'Validation failed');
-    } finally {
-      setValidationLoading(false);
-    }
-  };
-
-  return (
-    <View style={styles.tabContent}>
-      <Card style={styles.card}>
-        <Card.Title title="Address Validation" subtitle="Build and validate addresses" />
-        <Card.Content>
-          <StateDropdown
-            onStateChange={(state: State | null) => {
-              setSelectedState(state);
-              setSelectedLga(null);
-              setSelectedWard(null);
-              setValidationResult(null);
-            }}
-            selectedState={selectedState}
-          />
-
-          <LgaDropdown
-            stateId={selectedState?.id}
-            onLgaChange={(lga: Lga | null) => {
-              setSelectedLga(lga);
-              setSelectedWard(null);
-              setValidationResult(null);
-            }}
-            selectedLga={selectedLga}
-          />
-
-          <WardDropdown
-            lgaId={selectedLga?.id}
-            onWardChange={(ward: Ward | null) => {
-              setSelectedWard(ward);
-              setValidationResult(null);
-            }}
-            selectedWard={selectedWard}
-          />
-
-          <PostalCodeDropdown
-            stateId={selectedState?.id}
-            onPostalCodeChange={(postalCode: PostalCode | null) => {
-              setSelectedPostalCode(postalCode);
-              setValidationResult(null);
-            }}
-            selectedPostalCode={selectedPostalCode}
-          />
-
-          <Button
-            mode="contained"
-            onPress={validateAddress}
-            loading={validationLoading}
-            disabled={validationLoading || (!selectedState && !selectedLga && !selectedWard && !selectedPostalCode)}
-            style={styles.fullButton}
-          >
-            Validate Address
-          </Button>
-
-          {validationResult !== null && (
-            <Surface style={[
-              styles.validationResult,
-              validationResult ? styles.validResult : styles.invalidResult
-            ]}>
-              <Text style={styles.validationText}>
-                {validationResult ? '✅ Valid Address' : '❌ Invalid Address'}
-              </Text>
-            </Surface>
+          {(selectedState || selectedLga || selectedWard) && (
+            <Card style={[styles.card, styles.selectionCard]}>
+              <Card.Content>
+                <Text style={styles.selectionTitle}>Selection Summary:</Text>
+                {selectedState && (
+                  <Text style={styles.selectionText}>
+                    State: {selectedState.name} ({selectedState.code})
+                  </Text>
+                )}
+                {selectedLga && (
+                  <Text style={styles.selectionText}>
+                    LGA: {selectedLga.name}
+                  </Text>
+                )}
+                {selectedWard && (
+                  <Text style={styles.selectionText}>
+                    Ward: {selectedWard.name}
+                  </Text>
+                )}
+              </Card.Content>
+            </Card>
           )}
         </Card.Content>
       </Card>
@@ -333,106 +175,175 @@ function AddressDemo() {
   );
 }
 
-// Search Demo Tab - Search functionality
-function SearchDemo() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<SearchResult | null>(null);
-  const [searchLoading, setSearchLoading] = useState(false);
+function AddressTab() {
+  const [selectedState, setSelectedState] = useState<State | null>(null);
+  const [selectedLga, setSelectedLga] = useState<Lga | null>(null);
+  const [selectedWard, setSelectedWard] = useState<Ward | null>(null);
+  const [streetAddress, setStreetAddress] = useState('');
+  const [city, setCity] = useState('');
 
-  const sdk = NigeriaGeoSDK.getInstance();
+  const resetForm = () => {
+    setSelectedState(null);
+    setSelectedLga(null);
+    setSelectedWard(null);
+    setStreetAddress('');
+    setCity('');
+  };
+
+  const isFormComplete = selectedState && selectedLga && selectedWard && streetAddress.trim() && city.trim();
+
+  return (
+    <View>
+      <Card style={styles.card}>
+        <Card.Title title="Complete Address Form" />
+        <Card.Content>
+          <Text style={styles.stepTitle}>Geographic Information:</Text>
+
+          <StateDropdown
+            onStateChange={(state) => {
+              setSelectedState(state);
+              setSelectedLga(null);
+              setSelectedWard(null);
+            }}
+            selectedState={selectedState}
+
+          />
+
+          <LgaDropdown
+            stateId={selectedState?.id || ''}
+            onLgaChange={(lga) => {
+              setSelectedLga(lga);
+              setSelectedWard(null);
+            }}
+            selectedLga={selectedLga}
+
+          />
+
+          <WardDropdown
+            lgaId={selectedLga?.id}
+            onWardChange={setSelectedWard}
+            selectedWard={selectedWard}
+
+          />
+
+          <Text style={styles.stepTitle}>Address Details:</Text>
+
+          <TextInput
+            label="Street Address"
+            value={streetAddress}
+            onChangeText={setStreetAddress}
+            placeholder="Enter your street address"
+            style={styles.addressInput}
+          />
+
+          <TextInput
+            label="City/Town"
+            value={city}
+            onChangeText={setCity}
+            placeholder="Enter your city or town"
+            style={styles.addressInput}
+          />
+
+          <View style={styles.buttonRow}>
+            <Button
+              mode="outlined"
+              onPress={resetForm}
+              style={styles.button}
+            >
+              Reset Form
+            </Button>
+
+            <Button
+              mode="contained"
+              onPress={() => {
+                console.log('Address submitted:', {
+                  state: selectedState,
+                  lga: selectedLga,
+                  ward: selectedWard,
+                  streetAddress,
+                  city
+                });
+              }}
+              disabled={!isFormComplete}
+              style={styles.button}
+            >
+              Submit Address
+            </Button>
+          </View>
+
+          {isFormComplete && (
+            <Card style={[styles.card, styles.addressPreview]}>
+              <Card.Content>
+                <Text style={styles.previewTitle}>Address Preview:</Text>
+                <Text style={styles.previewText}>
+                  {streetAddress}
+                </Text>
+                <Text style={styles.previewText}>
+                  {city}, {selectedWard?.name} Ward
+                </Text>
+                <Text style={styles.previewText}>
+                  {selectedLga?.name} LGA, {selectedState?.name} State
+                </Text>
+                <Text style={styles.previewText}>
+                  Nigeria
+                </Text>
+              </Card.Content>
+            </Card>
+          )}
+        </Card.Content>
+      </Card>
+    </View>
+  );
+}
+
+function SearchTab() {
+  const [query, setQuery] = useState('');
+  const [results, setResults] = useState<SearchResult | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const handleSearch = async () => {
-    if (!searchQuery.trim()) return;
+    if (!query.trim()) return;
 
-    setSearchLoading(true);
+    setLoading(true);
     try {
-      const results = await sdk.search(searchQuery);
-      setSearchResults(results);
+      const data = await nigeriaGeoSDK.search(query);
+      setResults(data);
     } catch (error) {
-      Alert.alert('Search Error', error instanceof Error ? error.message : 'Search failed');
+      console.error('Search error:', error);
     } finally {
-      setSearchLoading(false);
+      setLoading(false);
     }
   };
 
   return (
-    <View style={styles.tabContent}>
+    <View>
       <Card style={styles.card}>
-        <Card.Title title="Search Demo" subtitle="Search across all geographical data" />
+        <Card.Title title="Search" />
         <Card.Content>
           <TextInput
-            label="Search location"
-            value={searchQuery}
-            onChangeText={setSearchQuery}
+            label="Search locations..."
+            value={query}
+            onChangeText={setQuery}
             right={
               <TextInput.Icon
                 icon="magnify"
                 onPress={handleSearch}
-                disabled={searchLoading}
+                disabled={loading}
               />
             }
             style={styles.searchInput}
           />
 
-          <Button
-            mode="contained"
-            onPress={handleSearch}
-            loading={searchLoading}
-            disabled={searchLoading || !searchQuery.trim()}
-            style={styles.fullButton}
-          >
-            Search
-          </Button>
+          {loading && <ActivityIndicator style={styles.loader} />}
 
-          {searchResults && (
-            <>
-              <Divider style={styles.divider} />
-              <Text variant="titleMedium">Search Results:</Text>
-
-              {searchResults.states.length > 0 && (
-                <>
-                  <Text variant="titleSmall" style={styles.resultTitle}>States ({searchResults.states.length})</Text>
-                  {searchResults.states.slice(0, 3).map((state) => (
-                    <Chip key={state.id} style={styles.chip} icon="map-marker">
-                      {state.name} - {state.capital}
-                    </Chip>
-                  ))}
-                </>
-              )}
-
-              {searchResults.lgas.length > 0 && (
-                <>
-                  <Text variant="titleSmall" style={styles.resultTitle}>LGAs ({searchResults.lgas.length})</Text>
-                  {searchResults.lgas.slice(0, 3).map((lga) => (
-                    <Chip key={lga.id} style={styles.chip} icon="city">
-                      {lga.name}
-                    </Chip>
-                  ))}
-                </>
-              )}
-
-              {searchResults.wards.length > 0 && (
-                <>
-                  <Text variant="titleSmall" style={styles.resultTitle}>Wards ({searchResults.wards.length})</Text>
-                  {searchResults.wards.slice(0, 3).map((ward) => (
-                    <Chip key={ward.id} style={styles.chip} icon="home-city">
-                      {ward.name}
-                    </Chip>
-                  ))}
-                </>
-              )}
-
-              {searchResults.postal_codes.length > 0 && (
-                <>
-                  <Text variant="titleSmall" style={styles.resultTitle}>Postal Codes ({searchResults.postal_codes.length})</Text>
-                  {searchResults.postal_codes.slice(0, 3).map((postal) => (
-                    <Chip key={postal.id} style={styles.chip} icon="mailbox">
-                      {postal.code} - {postal.area}
-                    </Chip>
-                  ))}
-                </>
-              )}
-            </>
+          {results && (
+            <View style={styles.searchResults}>
+              <Text variant="titleMedium">Results:</Text>
+              <Text>States: {results.states?.length || 0}</Text>
+              <Text>LGAs: {results.lgas?.length || 0}</Text>
+              <Text>Wards: {results.wards?.length || 0}</Text>
+              <Text>Postal Codes: {results.postal_codes?.length || 0}</Text>
+            </View>
           )}
         </Card.Content>
       </Card>
@@ -440,91 +351,279 @@ function SearchDemo() {
   );
 }
 
+// Simple dropdown components
+function StateDropdown({ onStateChange, selectedState }: {
+  onStateChange: (state: State | null) => void;
+  selectedState: State | null;
+}) {
+  const [states, setStates] = useState<State[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadStates = async () => {
+      try {
+        const data = await nigeriaGeoSDK.getStates();
+        setStates(data);
+      } catch (error) {
+        console.error('Error loading states:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadStates();
+  }, []);
+
+  if (loading) {
+    return <ActivityIndicator style={styles.loader} />;
+  }
+
+  return (
+    <View style={styles.dropdown}>
+      <Text variant="labelMedium">Select State:</Text>
+      <Picker
+        selectedValue={selectedState?.id || ''}
+        onValueChange={(itemValue) => {
+          if (itemValue) {
+            const state = states.find(s => s.id === itemValue);
+            onStateChange(state || null);
+          } else {
+            onStateChange(null);
+          }
+        }}
+        style={styles.picker}
+      >
+        <Picker.Item label="Select a state..." value="" />
+        {states.map((state) => (
+          <Picker.Item key={state.id} label={state.name} value={state.id} />
+        ))}
+      </Picker>
+    </View>
+  );
+}
+
+function LgaDropdown({ stateId, onLgaChange, selectedLga }: {
+  stateId: string;
+  onLgaChange: (lga: Lga | null) => void;
+  selectedLga: Lga | null;
+}) {
+  const [lgas, setLgas] = useState<Lga[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!stateId) {
+      setLgas([]);
+      return;
+    }
+
+    const loadLgas = async () => {
+      setLoading(true);
+      try {
+        const data = await nigeriaGeoSDK.getLgasByState(stateId);
+        setLgas(data);
+      } catch (error) {
+        console.error('Error loading LGAs:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadLgas();
+  }, [stateId]);
+
+  if (loading) {
+    return <ActivityIndicator style={styles.loader} />;
+  }
+
+  return (
+    <View style={styles.dropdown}>
+      <Text variant="labelMedium">Select LGA:</Text>
+      <Picker
+        selectedValue={selectedLga?.id || ''}
+        onValueChange={(itemValue) => {
+          if (itemValue) {
+            const lga = lgas.find(l => l.id === itemValue);
+            onLgaChange(lga || null);
+          } else {
+            onLgaChange(null);
+          }
+        }}
+        style={styles.picker}
+        enabled={!!stateId}
+      >
+        <Picker.Item label="Select an LGA..." value="" />
+        {lgas.map((lga) => (
+          <Picker.Item key={lga.id} label={lga.name} value={lga.id} />
+        ))}
+      </Picker>
+    </View>
+  );
+}
+
+function WardDropdown({ lgaId, onWardChange, selectedWard }: {
+  lgaId?: string;
+  onWardChange: (ward: Ward | null) => void;
+  selectedWard: Ward | null;
+}) {
+  const [wards, setWards] = useState<Ward[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!lgaId) {
+      setWards([]);
+      return;
+    }
+
+    const loadWards = async () => {
+      setLoading(true);
+      try {
+        const data = await nigeriaGeoSDK.getWardsByLga(lgaId);
+        setWards(data);
+      } catch (error) {
+        console.error('Error loading wards:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadWards();
+  }, [lgaId]);
+
+  if (loading) {
+    return <ActivityIndicator style={styles.loader} />;
+  }
+
+  return (
+    <View style={styles.dropdown}>
+      <Text variant="labelMedium">Select Ward:</Text>
+      <Picker
+        selectedValue={selectedWard?.id || ''}
+        onValueChange={(itemValue) => {
+          if (itemValue) {
+            const ward = wards.find(w => w.id === itemValue);
+            onWardChange(ward || null);
+          } else {
+            onWardChange(null);
+          }
+        }}
+        style={styles.picker}
+        enabled={!!lgaId}
+      >
+        <Picker.Item label="Select a ward..." value="" />
+        {wards.map((ward) => (
+          <Picker.Item key={ward.id} label={ward.name} value={ward.id} />
+        ))}
+      </Picker>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
-  header: {
-    backgroundColor: '#4caf50',
-  },
-  headerTitle: {
-    color: 'white',
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  tabContainer: {
-    backgroundColor: '#4caf50',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-  },
-  segmentedButtons: {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-  },
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
   },
-  tabContent: {
+  header: {
+    backgroundColor: '#2E7D32',
+  },
+  headerTitle: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  tabs: {
+    margin: 16,
+  },
+  content: {
+    flex: 1,
     padding: 16,
   },
   card: {
     marginBottom: 16,
   },
+  loader: {
+    marginVertical: 16,
+  },
+  resultsTitle: {
+    marginTop: 16,
+    marginBottom: 8,
+    fontWeight: 'bold',
+  },
+  moreText: {
+    fontStyle: 'italic',
+    color: '#666',
+    marginTop: 8,
+  },
+  selection: {
+    marginTop: 16,
+    padding: 12,
+    backgroundColor: '#e8f5e8',
+    borderRadius: 8,
+    fontWeight: 'bold',
+  },
+  searchInput: {
+    marginBottom: 16,
+  },
+  searchResults: {
+    marginTop: 16,
+    padding: 12,
+    backgroundColor: '#f0f0f0',
+    borderRadius: 8,
+  },
+  dropdown: {
+    marginVertical: 8,
+  },
+  picker: {
+    backgroundColor: '#f5f5f5',
+    borderRadius: 8,
+    marginTop: 4,
+  },
+  stepTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginTop: 16,
+    marginBottom: 8,
+    color: '#2E7D32',
+  },
+  selectionCard: {
+    backgroundColor: '#e8f5e8',
+    marginTop: 16,
+  },
+  selectionTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 8,
+    color: '#2E7D32',
+  },
+  selectionText: {
+    fontSize: 14,
+    marginBottom: 4,
+    color: '#1B5E20',
+  },
+  addressInput: {
+    marginVertical: 8,
+  },
   buttonRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 8,
+    marginTop: 16,
   },
-  apiButton: {
+  button: {
     flex: 1,
     marginHorizontal: 4,
   },
-  fullButton: {
-    marginTop: 12,
+  addressPreview: {
+    backgroundColor: '#e3f2fd',
+    marginTop: 16,
   },
-  loadingContainer: {
-    alignItems: 'center',
-    padding: 20,
-  },
-  loadingText: {
-    marginTop: 8,
-  },
-  outputContainer: {
-    backgroundColor: '#f8f8f8',
-    padding: 12,
-    borderRadius: 8,
-    maxHeight: 300,
-  },
-  outputText: {
-    fontFamily: 'monospace',
-    fontSize: 12,
-    color: '#333',
-  },
-  chip: {
-    margin: 4,
-  },
-  searchInput: {
-    marginBottom: 8,
-  },
-  divider: {
-    marginVertical: 12,
-  },
-  resultTitle: {
-    marginTop: 8,
-    marginBottom: 4,
-    fontWeight: 'bold',
-  },
-  validationResult: {
-    marginTop: 12,
-    padding: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  validResult: {
-    backgroundColor: '#e8f5e8',
-  },
-  invalidResult: {
-    backgroundColor: '#ffeaa7',
-  },
-  validationText: {
-    fontWeight: 'bold',
+  previewTitle: {
     fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 8,
+    color: '#1565C0',
+  },
+  previewText: {
+    fontSize: 14,
+    marginBottom: 2,
+    color: '#0D47A1',
   },
 });

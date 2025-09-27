@@ -4,9 +4,7 @@
     "description": "Zero-config React Native SDK for Nigerian geographical data",
     "main": "index.ts",
     "types": "index.ts",
-    "exports": {
-        ".": "./index.ts"
-    },
+    "react-native": "index.ts",
     "keywords": [
         "nigeria",
         "geography",
@@ -19,23 +17,18 @@
     ],
     "author": "Nigeria Geo API",
     "license": "MIT",
-    "scripts": {
-        "build": "tsc",
-        "test": "jest"
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/your-org/nigeria-geo-api.git"
     },
     "peerDependencies": {
-        "react": ">=18.0.0",
-        "react-native": ">=0.70.0",
-        "@react-native-picker/picker": ">=2.0.0",
-        "react-native-paper": ">=5.0.0"
+        "react": ">=16.8.0",
+        "react-native": ">=0.60.0"
     },
+    "dependencies": {},
     "devDependencies": {
-        "@types/react": "~19.1.0",
-        "typescript": "~5.9.2"
-    },
-    "files": [
-        "src/",
-        "index.ts",
-        "README.md"
-    ]
+        "@types/react": "^18.0.0",
+        "@types/react-native": "^0.72.0",
+        "typescript": "^5.0.0"
+    }
 }

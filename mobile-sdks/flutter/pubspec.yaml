@@ -1,9 +1,18 @@
 name: nigeria_geo_sdk
-description: Cross-platform Flutter SDK for Nigerian geographic data API
-version: 1.0.0
-homepage: https://github.com/your-org/nigeria-geo-api
-repository: https://github.com/your-org/nigeria-geo-api
-documentation: https://docs.nigeria-geo.com/flutter
+description: High-performance Flutter SDK for comprehensive Nigerian geographic data including states, LGAs, wards, and postal codes. Optimized for fast response times with direct database access.
+version: 1.1.0
+homepage: https://github.com/mubarakhammed/3609ja/tree/main/mobile-sdks/flutter
+repository: https://github.com/mubarakhammed/3609ja
+documentation: https://github.com/mubarakhammed/3609ja/blob/main/mobile-sdks/flutter/README.md
+issue_tracker: https://github.com/mubarakhammed/3609ja/issues
+funding:
+  - https://github.com/sponsors/mubarakhammed
+topics:
+  - nigeria
+  - geography
+  - location
+  - maps
+  - api
 
 environment:
   sdk: ">=2.17.0 <4.0.0"

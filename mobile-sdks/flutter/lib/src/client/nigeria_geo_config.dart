@@ -36,14 +36,15 @@ class NigeriaGeoConfig {
     required this.baseUrl,
     this.apiKey,
     this.enableCaching = true,
-    this.cacheExpiration = const Duration(hours: 24),
-    this.maxCacheSize = 50 * 1024 * 1024, // 50MB
-    this.timeout = const Duration(seconds: 30),
+    this.cacheExpiration =
+        const Duration(hours: 6), // Shorter cache for fast API
+    this.maxCacheSize = 25 * 1024 * 1024, // 25MB - reduced cache size
+    this.timeout = const Duration(seconds: 5), // Optimized timeout
     this.enableLogging = false,
     this.userAgent,
     this.enableRetry = true,
-    this.maxRetries = 3,
-    this.retryDelay = const Duration(seconds: 1),
+    this.maxRetries = 2, // Fewer retries for fast API
+    this.retryDelay = const Duration(milliseconds: 500), // Faster retry
   });
 
   /// Creates a config for development environment

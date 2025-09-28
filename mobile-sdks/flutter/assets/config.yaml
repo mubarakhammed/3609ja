@@ -1,16 +1,18 @@
 # Nigeria Geo SDK Configuration
 # This file contains configuration settings for the SDK
+# Optimized for high-performance direct database access
 
 # API Configuration
 api:
   base_url: "http://20.63.52.179:3000"
-  timeout: 15000 # milliseconds
+  timeout: 5000 # milliseconds - optimized for fast API responses
 
 # Caching Configuration
+# Reduced caching emphasis due to API performance improvements
 cache:
   enabled: true
-  expiration_hours: 24
-  max_size_mb: 50
+  expiration_hours: 6 # Shorter cache duration due to fast API
+  max_size_mb: 25 # Reduced cache size
 
 # Logging Configuration
 logging:

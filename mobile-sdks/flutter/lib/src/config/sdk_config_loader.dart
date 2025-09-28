@@ -20,21 +20,21 @@ class SDKConfigLoader {
     return _config ?? _getDefaultConfig();
   }
 
-  /// Get default configuration if YAML loading fails
+  /// Get default configuration optimized for high-performance API
   static Map<String, dynamic> _getDefaultConfig() {
     return {
       'api': {
-        'base_url': 'http://localhost:3000',
-        'timeout': 30000,
+        'base_url': 'http://20.63.52.179:3000', // Production server
+        'timeout': 5000, // Reduced timeout for optimized API
       },
       'cache': {
         'enabled': true,
-        'expiration_hours': 24,
-        'max_size_mb': 50,
+        'expiration_hours': 6, // Shorter cache due to fast API
+        'max_size_mb': 25, // Reduced cache size
       },
       'logging': {
-        'enabled': true,
-        'level': 'info',
+        'enabled': false, // Disabled by default for production
+        'level': 'error',
       },
       'location': {
         'request_permission': true,

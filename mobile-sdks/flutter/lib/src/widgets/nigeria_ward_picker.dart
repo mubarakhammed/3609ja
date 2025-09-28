@@ -79,7 +79,8 @@ class _NigeriaWardPickerState extends State<NigeriaWardPicker> {
         _wards = null;
       });
 
-      final result = await widget.client.getWards(lgaId: widget.lga!.id);
+      final result = await widget.client
+          .getWards(lgaId: widget.lga!.id, limit: 100); // Fetch all wards
       setState(() {
         _wards = result.data;
         _isLoading = false;

@@ -79,7 +79,8 @@ class _NigeriaLGAPickerState extends State<NigeriaLGAPicker> {
         _lgas = null;
       });
 
-      final result = await widget.client.getLGAs(stateId: widget.state!.id);
+      final result = await widget.client
+          .getLGAs(stateId: widget.state!.id, limit: 50); // Fetch all LGAs
       setState(() {
         _lgas = result.data;
         _isLoading = false;

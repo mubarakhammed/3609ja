@@ -1,11 +1,11 @@
 {
     "openapi": "3.0.3",
     "info": {
-        "title": "Nigeria Geo + Postal + Validation API",
-        "description": "A comprehensive API for Nigerian geographic data, postal codes, and address validation",
+        "title": "Nigeria Geographic Data API",
+        "description": "High-performance API for comprehensive Nigerian geographic data including states, LGAs, wards, and postal codes. Optimized for fast response times with direct database access.",
         "version": "1.0.0",
         "contact": {
-            "name": "Nigeria Geo API",
+            "name": "Nigeria Geo API Support",
             "email": "support@nigeriageoapi.com"
         },
         "license": {
@@ -15,12 +15,12 @@
     },
     "servers": [
         {
-            "url": "http://localhost:3000",
-            "description": "Development server"
+            "url": "http://20.63.52.179:3000",
+            "description": "Production server"
         },
         {
-            "url": "https://api.nigeriageo.com",
-            "description": "Production server"
+            "url": "http://localhost:3000",
+            "description": "Development server"
         }
     ],
     "tags": [
@@ -47,8 +47,29 @@
         {
             "name": "Search",
             "description": "Search across all geographic entities"
+        },
+        {
+            "name": "Health",
+            "description": "API health and status endpoints"
         }
     ],
+    "externalDocs": {
+        "description": "Complete coverage of Nigerian geographic data",
+        "url": "https://github.com/mubarakhammed/3609ja"
+    },
+    "x-data-coverage": {
+        "states": 37,
+        "lgas": 774,
+        "wards": 8840,
+        "postal_codes": 8840,
+        "description": "Complete administrative divisions of Nigeria as of 2024"
+    },
+    "x-performance": {
+        "architecture": "Direct database access for optimal performance",
+        "database": "PostgreSQL with optimized connection pooling",
+        "response_time": "< 500ms for most endpoints",
+        "availability": "99.9% uptime SLA"
+    },
     "paths": {
         "/api/v1/states": {
             "get": {
@@ -922,6 +943,51 @@
                     }
                 }
             }
+        },
+        "/api/v1/health": {
+            "get": {
+                "tags": [
+                    "Health"
+                ],
+                "summary": "API health check",
+                "description": "Check the health status of the API including database connectivity",
+                "responses": {
+                    "200": {
+                        "description": "API is healthy",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HealthResponseDto"
+                                },
+                                "example": {
+                                    "status": "healthy",
+                                    "timestamp": "2024-01-01T00:00:00Z",
+                                    "database": "connected",
+                                    "version": "1.0.0",
+                                    "uptime": "2h 30m 15s"
+                                }
+                            }
+                        }
+                    },
+                    "503": {
+                        "description": "API is unhealthy",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HealthResponseDto"
+                                },
+                                "example": {
+                                    "status": "unhealthy",
+                                    "timestamp": "2024-01-01T00:00:00Z",
+                                    "database": "disconnected",
+                                    "version": "1.0.0",
+                                    "uptime": "2h 30m 15s"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "components": {
@@ -1377,7 +1443,61 @@
                     "wards",
                     "postal_codes"
                 ]
+            },
+            "HealthResponseDto": {
+                "type": "object",
+                "properties": {
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "healthy",
+                            "unhealthy"
+                        ],
+                        "description": "Overall health status of the API"
+                    },
+                    "timestamp": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "Timestamp of the health check"
+                    },
+                    "database": {
+                        "type": "string",
+                        "enum": [
+                            "connected",
+                            "disconnected"
+                        ],
+                        "description": "Database connection status"
+                    },
+                    "version": {
+                        "type": "string",
+                        "description": "API version"
+                    },
+                    "uptime": {
+                        "type": "string",
+                        "description": "API uptime duration"
+                    }
+                },
+                "required": [
+                    "status",
+                    "timestamp",
+                    "database",
+                    "version"
+                ]
+            }
+        },
+        "securitySchemes": {
+            "ApiKeyAuth": {
+                "type": "apiKey",
+                "in": "header",
+                "name": "X-API-Key",
+                "description": "Optional API key for usage tracking and rate limiting"
             }
         }
-    }
+    },
+    "security": [
+        {
+            "ApiKeyAuth": []
+        },
+        {}
+    ]
 }

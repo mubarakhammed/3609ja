@@ -102,14 +102,15 @@ class _APIDemoState extends State<APIDemo> {
     });
 
     try {
-      final response = await client.getStates(limit: 5);
+      final response = await client.getStates(limit: 50); // Show more states
       setState(() {
         _output = '''✅ States API Success!
 Found ${response.data.length} states (page ${response.pagination.page}):
 
 ${response.data.map((s) => '• ${s.name} (${s.code})').join('\n')}
 
-Total states: ${response.pagination.total}''';
+Total states: ${response.pagination.total}
+Showing all ${response.data.length} states''';
       });
     } catch (e) {
       setState(() {
@@ -131,20 +132,66 @@ Total states: ${response.pagination.total}''';
       final result = await client.searchAll('Lagos');
       setState(() {
         _output = '''✅ Search API Success!
-Query: "Lagos"
+Query: \"Lagos\"
 
 States found: ${result.states.length}
 LGAs found: ${result.lgas.length}
 Wards found: ${result.wards.length}
 Postal codes found: ${result.postalCodes.length}
 
-Sample results:
-${result.states.take(2).map((s) => '• State: ${s.name}').join('\n')}
-${result.lgas.take(2).map((l) => '• LGA: ${l.name}').join('\n')}''';
+All States (${result.states.length}):
+${result.states.map((s) => '• ${s.name} (${s.code})').join('\n')}
+
+First 10 LGAs:
+${result.lgas.take(10).map((l) => '• ${l.name} (${l.code})').join('\n')}
+
+First 10 Wards:
+${result.wards.take(10).map((w) => '• ${w.name}').join('\n')}
+
+First 5 Postal Codes:
+${result.postalCodes.take(5).map((p) => '• ${p.code}').join('\n')}''';
       });
     } catch (e) {
       setState(() {
         _output = '❌ Search Error: $e';
+      });
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _testPaginationAPI() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      // Test pagination by fetching first 3 pages
+      final page1 = await client.getStates(page: 1, limit: 10);
+      final page2 = await client.getStates(page: 2, limit: 10);
+      final page3 = await client.getStates(page: 3, limit: 10);
+
+      setState(() {
+        _output = '''✅ Pagination API Success!
+Total states: ${page1.pagination.total}
+Total pages: ${page1.pagination.totalPages}
+
+Page 1 (${page1.data.length} states):
+${page1.data.map((s) => '• ${s.name}').join('\n')}
+
+Page 2 (${page2.data.length} states):
+${page2.data.map((s) => '• ${s.name}').join('\n')}
+
+Page 3 (${page3.data.length} states):
+${page3.data.map((s) => '• ${s.name}').join('\n')}
+
+Performance: Fetched 3 pages with ${page1.data.length + page2.data.length + page3.data.length} total states''';
+      });
+    } catch (e) {
+      setState(() {
+        _output = '❌ Pagination Error: $e';
       });
     } finally {
       setState(() {
@@ -164,14 +211,21 @@ ${result.lgas.take(2).map((l) => '• LGA: ${l.name}').join('\n')}''';
               Expanded(
                 child: ElevatedButton(
                   onPressed: _isLoading ? null : _testStatesAPI,
-                  child: Text('Test States API'),
+                  child: Text('All States'),
                 ),
               ),
-              SizedBox(width: 12),
+              SizedBox(width: 8),
               Expanded(
                 child: ElevatedButton(
                   onPressed: _isLoading ? null : _testSearchAPI,
-                  child: Text('Test Search API'),
+                  child: Text('Search Lagos'),
+                ),
+              ),
+              SizedBox(width: 8),
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: _isLoading ? null : _testPaginationAPI,
+                  child: Text('Pagination'),
                 ),
               ),
             ],

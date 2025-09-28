@@ -54,7 +54,8 @@ class _NigeriaStatePickerState extends State<NigeriaStatePicker> {
         _error = null;
       });
 
-      final result = await widget.client.getStates();
+      final result =
+          await widget.client.getStates(limit: 50); // Fetch all states
       setState(() {
         _states = result.data;
         _isLoading = false;

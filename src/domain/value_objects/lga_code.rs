@@ -10,7 +10,7 @@ pub struct LgaCode(String);
 pub enum LgaCodeError {
     #[error("LGA code must be between 2 and 20 characters")]
     InvalidLength,
-    #[error("LGA code must follow format: NG-XX-YY")]
+    #[error("LGA code must follow format: LGA-XXXX")]
     InvalidFormat,
 }
 
@@ -20,11 +20,11 @@ impl LgaCode {
         if code.len() < 2 || code.len() > 20 {
             return Err(LgaCodeError::InvalidLength);
         }
-        
-        if !code.starts_with("NG-") {
+
+        if !code.starts_with("LGA-") {
             return Err(LgaCodeError::InvalidFormat);
         }
-        
+
         Ok(Self(code))
     }
 

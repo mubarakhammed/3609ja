@@ -1,6 +1,5 @@
 use axum::{
-    extract::{ConnectInfo, Request},
-    http::HeaderMap,
+    extract::{ConnectInfo, Request, State},
     middleware::Next,
     response::Response,
 };
@@ -9,17 +8,21 @@ use tokio::sync::mpsc;
 
 use crate::domain::entities::api_usage::ApiUsage;
 use crate::domain::repositories::api_usage_repository::ApiUsageRepository;
+use crate::presentation::state::AppState;
 
 /// Middleware for tracking API usage
 pub async fn track_usage_middleware(
+    State(_state): State<AppState>,
     connect_info: Option<ConnectInfo<SocketAddr>>,
-    headers: HeaderMap,
     request: Request,
     next: Next,
 ) -> Response {
     let start_time = Instant::now();
     let method = request.method().to_string();
     let uri = request.uri().path().to_string();
+
+    // Extract headers from request
+    let headers = request.headers();
     let user_agent = headers
         .get("user-agent")
         .and_then(|h| h.to_str().ok())
@@ -163,68 +166,4 @@ async fn process_batch(
         }
     }
     Ok(())
-}
-
-/// Enhanced middleware that uses the background tracker
-pub fn create_usage_tracking_middleware(
-    tracker: Arc<UsageTracker>,
-) -> impl Fn(
-    ConnectInfo<SocketAddr>,
-    HeaderMap,
-    Request,
-    Next,
-) -> std::pin::Pin<Box<dyn std::future::Future<Output = Response> + Send>>
-       + Clone {
-    move |addr, headers, request, next| {
-        let tracker = tracker.clone();
-        Box::pin(async move {
-            let start_time = Instant::now();
-            let method = request.method().to_string();
-            let uri = request.uri().path().to_string();
-            let user_agent = headers
-                .get("user-agent")
-                .and_then(|h| h.to_str().ok())
-                .map(|s| s.to_string());
-            let api_key = headers
-                .get("x-api-key")
-                .and_then(|h| h.to_str().ok())
-                .map(|s| s.to_string());
-            let user_id = headers
-                .get("x-user-id")
-                .and_then(|h| h.to_str().ok())
-                .map(|s| s.to_string());
-
-            let request_size = headers
-                .get("content-length")
-                .and_then(|h| h.to_str().ok())
-                .and_then(|s| s.parse::<u32>().ok());
-
-            let response = next.run(request).await;
-
-            let response_time = start_time.elapsed().as_millis() as u32;
-            let status_code = response.status().as_u16();
-
-            let response_size = response
-                .headers()
-                .get("content-length")
-                .and_then(|h| h.to_str().ok())
-                .and_then(|s| s.parse::<u32>().ok());
-
-            let usage = ApiUsage::new(
-                uri,
-                method,
-                user_agent,
-                addr.0.ip().to_string(),
-                status_code,
-                response_time,
-                request_size,
-                response_size,
-                api_key,
-                user_id,
-            );
-
-            tracker.track(usage);
-            response
-        })
-    }
 }

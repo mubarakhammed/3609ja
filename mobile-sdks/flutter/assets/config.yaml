@@ -3,8 +3,8 @@
 
 # API Configuration
 api:
-  base_url: "http://localhost:3000"
-  timeout: 30000 # milliseconds
+  base_url: "http://20.63.52.179:3000"
+  timeout: 15000 # milliseconds
 
 # Caching Configuration
 cache:
@@ -14,8 +14,8 @@ cache:
 
 # Logging Configuration
 logging:
-  enabled: true
-  level: "info" # debug, info, warn, error
+  enabled: false
+  level: "error" # debug, info, warn, error
 
 # Location Services
 location:

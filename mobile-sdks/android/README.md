@@ -1,6 +1,109 @@
 # 🤖 Nigeria Geo Android SDK
 
-Native Kotlin/Java SDK for integrating Nigerian geographic data into Android applications.
+# Nigeria Geo Android SDK
+
+Android SDK for Nigerian geographic data - states, LGAs, wards, and postal codes.
+
+## Installation
+
+Add to your app's `build.gradle.kts`:
+
+```kotlin
+dependencies {
+    implementation("com.nigeriageo:sdk:1.0.0")
+}
+```
+
+## Quick Start
+
+```kotlin
+import com.nigeriageo.sdk.NigeriaGeoSDK
+
+class MainActivity : ComponentActivity() {
+    private val sdk = NigeriaGeoSDK.getInstance()
+    
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        
+        // Get states
+        lifecycleScope.launch {
+            val states = sdk.getStates()
+            // Use states data
+        }
+        
+        // Get LGAs for a state
+        lifecycleScope.launch {
+            val lgas = sdk.getLGAs(stateId = "state-id")
+            // Use LGAs data
+        }
+        
+        // Search across all entities
+        lifecycleScope.launch {
+            val results = sdk.searchAll("Lagos")
+            // Use search results
+        }
+    }
+}
+```
+
+## Compose UI Components
+
+Ready-to-use Jetpack Compose components:
+
+```kotlin
+@Composable
+fun MyScreen() {
+    var selectedState by remember { mutableStateOf<NigerianState?>(null) }
+    
+    StateDropdown(
+        selectedState = selectedState,
+        onStateSelected = { state -> 
+            selectedState = state 
+        }
+    )
+}
+```
+
+## Features
+
+- **Zero configuration** - works out of the box
+- **Complete geographic hierarchy** - States → LGAs → Wards → Postal Codes
+- **Kotlin Coroutines** - async/await support
+- **Jetpack Compose** - modern UI components
+- **Built-in networking** - Retrofit + OkHttp
+- **JSON serialization** - kotlinx.serialization
+- **Error handling** - comprehensive exception handling
+
+## Example
+
+See the `example/` directory for a complete demo app showcasing all features.
+
+## API Documentation
+
+The SDK provides access to Nigeria's complete geographic data:
+
+- **States**: 36 states + FCT
+- **LGAs**: 774 Local Government Areas
+- **Wards**: 8,810+ electoral wards  
+- **Postal codes**: 1,000+ postal codes with geographic mapping
+
+## Requirements
+
+- Android API 21+
+- Kotlin 1.9+
+- Jetpack Compose (for UI components)
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests
+5. Submit a pull request
+
+## License
+
+MIT License - see LICENSE file for details.
 
 ## 🚀 Features
 

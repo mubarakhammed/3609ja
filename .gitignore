@@ -1,1 +1,71 @@
 /target
+
+# Environment files
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# Mobile SDK Configuration Files
+# Flutter
+mobile-sdks/flutter/.env
+mobile-sdks/flutter/assets/config.yaml
+mobile-sdks/flutter/ios/Runner/GoogleService-Info.plist
+mobile-sdks/flutter/android/app/google-services.json
+mobile-sdks/flutter/.flutter-plugins
+mobile-sdks/flutter/.flutter-plugins-dependencies
+mobile-sdks/flutter/.dart_tool/
+mobile-sdks/flutter/build/
+mobile-sdks/flutter/ios/build/
+mobile-sdks/flutter/android/build/
+mobile-sdks/flutter/android/.gradle/
+mobile-sdks/flutter/android/app/build/
+mobile-sdks/flutter/.metadata
+
+# React Native
+mobile-sdks/react-native/.env
+mobile-sdks/react-native/.env.local
+mobile-sdks/react-native/sdk/config.ts
+mobile-sdks/react-native/ios/GoogleService-Info.plist
+mobile-sdks/react-native/android/app/google-services.json
+mobile-sdks/react-native/node_modules/
+mobile-sdks/react-native/.expo/
+mobile-sdks/react-native/dist/
+mobile-sdks/react-native/web-build/
+mobile-sdks/react-native/.vscode/
+
+# Android SDK
+mobile-sdks/android/nigeria-geo-sdk/build/
+mobile-sdks/android/nigeria-geo-sdk/.gradle/
+mobile-sdks/android/nigeria-geo-sdk/local.properties
+mobile-sdks/android/nigeria-geo-sdk/gradle.properties
+mobile-sdks/android/nigeria-geo-sdk/keystore.properties
+
+# General mobile development
+*.keystore
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.dSYM.zip
+*.ipa
+*.apk
+*.aab
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db

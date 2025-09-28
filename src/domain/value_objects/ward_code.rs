@@ -10,7 +10,7 @@ pub struct WardCode(String);
 pub enum WardCodeError {
     #[error("Ward code must be between 2 and 25 characters")]
     InvalidLength,
-    #[error("Ward code must follow format: NG-XX-YY-ZZ")]
+    #[error("Ward code must follow format: WARD-XXXXX")]
     InvalidFormat,
 }
 
@@ -20,11 +20,11 @@ impl WardCode {
         if code.len() < 2 || code.len() > 25 {
             return Err(WardCodeError::InvalidLength);
         }
-        
-        if !code.starts_with("NG-") {
+
+        if !code.starts_with("WARD-") {
             return Err(WardCodeError::InvalidFormat);
         }
-        
+
         Ok(Self(code))
     }
 

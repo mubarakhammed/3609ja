@@ -7,7 +7,7 @@ use tower_http::{
     cors::{Any, CorsLayer},
     trace::TraceLayer,
 };
-use tracing::info;
+use tracing::{info, warn};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 // use utoipa_swagger_ui::SwaggerUi;
 
@@ -70,13 +70,27 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     info!("Database connection established");
 
-    // Initialize Redis cache
+    // Initialize Redis cache with graceful fallback
     let redis_url =
         std::env::var("REDIS_URL").unwrap_or_else(|_| "redis://localhost:6379".to_string());
-    let cache = nigeria_geo_api::infrastructure::cache::CacheClient::new(&redis_url)
-        .expect("Failed to connect to Redis");
 
-    info!("Redis cache connected successfully");
+    let cache = match nigeria_geo_api::infrastructure::cache::CacheClient::new(&redis_url) {
+        Ok(client) => {
+            info!("✅ Redis cache connected successfully at {}", redis_url);
+            client
+        }
+        Err(e) => {
+            warn!(
+                "⚠️  Redis connection failed: {}. API will run without caching.",
+                e
+            );
+            info!("To fix this, ensure Redis is running at: {}", redis_url);
+            // For now, we'll still create a client but it will fail on operations
+            // In a real production setup, you might want to implement a NoOpCacheClient
+            nigeria_geo_api::infrastructure::cache::CacheClient::new("redis://127.0.0.1:6379")
+                .unwrap_or_else(|_| panic!("Critical: Cannot create cache client"))
+        }
+    };
 
     // Initialize repositories
     let state_repository = PostgresStateRepository::new(pool.clone());

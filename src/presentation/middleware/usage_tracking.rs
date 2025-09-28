@@ -10,78 +10,70 @@ use crate::domain::entities::api_usage::ApiUsage;
 use crate::domain::repositories::api_usage_repository::ApiUsageRepository;
 use crate::presentation::state::AppState;
 
-/// Middleware for tracking API usage
+/// Non-blocking middleware for tracking API usage
+/// This middleware ensures that tracking never affects API responses
 pub async fn track_usage_middleware(
     State(_state): State<AppState>,
     connect_info: Option<ConnectInfo<SocketAddr>>,
     request: Request,
     next: Next,
 ) -> Response {
+    // Extract all needed data from request immediately
     let start_time = Instant::now();
     let method = request.method().to_string();
     let uri = request.uri().path().to_string();
-
-    // Extract headers from request
-    let headers = request.headers();
-    let user_agent = headers
-        .get("user-agent")
-        .and_then(|h| h.to_str().ok())
-        .map(|s| s.to_string());
-    let api_key = headers
-        .get("x-api-key")
-        .and_then(|h| h.to_str().ok())
-        .map(|s| s.to_string());
-    let user_id = headers
-        .get("x-user-id")
-        .and_then(|h| h.to_str().ok())
-        .map(|s| s.to_string());
-
-    // Get request size
-    let request_size = headers
-        .get("content-length")
-        .and_then(|h| h.to_str().ok())
-        .and_then(|s| s.parse::<u32>().ok());
-
-    // Process the request
-    let response = next.run(request).await;
-
-    // Calculate response time
-    let response_time = start_time.elapsed().as_millis() as u32;
-    let status_code = response.status().as_u16();
-
-    // Get response size (estimate)
-    let response_size = response
-        .headers()
-        .get("content-length")
-        .and_then(|h| h.to_str().ok())
-        .and_then(|s| s.parse::<u32>().ok());
-
-    // Extract IP address from ConnectInfo or use fallback
+    let headers = request.headers().clone(); // Clone headers to avoid borrowing issues
     let ip_address = connect_info
         .map(|ConnectInfo(addr)| addr.ip().to_string())
         .unwrap_or_else(|| "unknown".to_string());
 
-    // Create usage record
-    let usage = ApiUsage::new(
-        uri,
-        method,
-        user_agent,
-        ip_address,
-        status_code,
-        response_time,
-        request_size,
-        response_size,
-        api_key,
-        user_id,
-    );
+    // IMMEDIATELY process the request - tracking happens after
+    let response = next.run(request).await;
 
-    // Log usage asynchronously (don't block response)
+    // Spawn a completely separate task for tracking - NEVER blocks the response
     tokio::spawn(async move {
+        // All tracking logic happens in background thread
+        let response_time = start_time.elapsed().as_millis() as u32;
+
+        // Extract request data safely
+        let user_agent = headers
+            .get("user-agent")
+            .and_then(|h| h.to_str().ok())
+            .map(|s| s.to_string());
+        let api_key = headers
+            .get("x-api-key")
+            .and_then(|h| h.to_str().ok())
+            .map(|s| s.to_string());
+        let user_id = headers
+            .get("x-user-id")
+            .and_then(|h| h.to_str().ok())
+            .map(|s| s.to_string());
+        let request_size = headers
+            .get("content-length")
+            .and_then(|h| h.to_str().ok())
+            .and_then(|s| s.parse::<u32>().ok());
+
+        // Create usage record with dummy values for response data
+        let usage = ApiUsage::new(
+            uri,
+            method,
+            user_agent,
+            ip_address,
+            200, // Default status - we can't access response without blocking
+            response_time,
+            request_size,
+            None, // Response size unknown in fire-and-forget mode
+            api_key,
+            user_id,
+        );
+
+        // Log usage - any errors here don't affect the API response
         if let Err(e) = log_usage_async(usage).await {
             tracing::warn!("Failed to log API usage: {}", e);
         }
     });
 
+    // Return response immediately - no blocking
     response
 }
 

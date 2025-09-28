@@ -37,7 +37,7 @@ use nigeria_geo_api::{
             search_lgas_handler, search_postal_codes_handler, search_states_handler,
             search_wards_handler, validate_address_handler,
         },
-        // middleware::usage_tracking::track_usage_middleware,
+        middleware::usage_tracking::track_usage_middleware,
         state::AppState,
     },
 };
@@ -211,10 +211,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         // OpenAPI documentation (temporarily disabled)
         // .route("/api-docs/openapi.json", get(openapi_json_handler))
         // .merge(SwaggerUi::new("/docs").url("/api-docs/openapi.json", ApiDoc::openapi()))
-        // .layer(axum::middleware::from_fn_with_state(
-        //     app_state.clone(),
-        //     track_usage_middleware,
-        // ))
+        .layer(axum::middleware::from_fn_with_state(
+            app_state.clone(),
+            track_usage_middleware,
+        ))
         .layer(cors)
         .layer(TraceLayer::new_for_http())
         .with_state(app_state);

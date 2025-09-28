@@ -79,12 +79,12 @@ class NigeriaGeoSDK {
                 ...config // Override with any provided config
             };
         } catch (error) {
-            console.warn('Failed to load config, using defaults:', error);
+            console.warn('Failed to load config, using optimized defaults:', error);
             this.config = {
-                baseUrl: 'http://localhost:3000',
-                timeout: 30000,
+                baseUrl: 'http://20.63.52.179:3000', // Use production server as fallback
+                timeout: 5000, // Optimized timeout for fast API
                 enableCaching: true,
-                enableLogging: true,
+                enableLogging: false, // Disable logging by default
                 ...config
             };
         }
@@ -138,9 +138,9 @@ class NigeriaGeoSDK {
         }
     }
 
-    // States API
-    async getStates(): Promise<State[]> {
-        const response = await this.makeRequest<ApiResponse<State>>('/api/v1/states');
+    // States API - Enhanced with optional pagination
+    async getStates(limit: number = 50): Promise<State[]> {
+        const response = await this.makeRequest<ApiResponse<State>>(`/api/v1/states?limit=${limit}`);
         return response.data;
     }
 
@@ -149,9 +149,9 @@ class NigeriaGeoSDK {
         return response;
     }
 
-    // LGAs API
-    async getLgasByState(stateId: string): Promise<Lga[]> {
-        const response = await this.makeRequest<ApiResponse<Lga>>(`/api/v1/states/${stateId}/lgas`);
+    // LGAs API - Enhanced with optional pagination
+    async getLgasByState(stateId: string, limit: number = 50): Promise<Lga[]> {
+        const response = await this.makeRequest<ApiResponse<Lga>>(`/api/v1/states/${stateId}/lgas?limit=${limit}`);
         return response.data;
     }
 
@@ -160,9 +160,9 @@ class NigeriaGeoSDK {
         return response;
     }
 
-    // Wards API  
-    async getWardsByLga(lgaId: string): Promise<Ward[]> {
-        const response = await this.makeRequest<ApiResponse<Ward>>(`/api/v1/lgas/${lgaId}/wards`);
+    // Wards API - Enhanced with optional pagination
+    async getWardsByLga(lgaId: string, limit: number = 100): Promise<Ward[]> {
+        const response = await this.makeRequest<ApiResponse<Ward>>(`/api/v1/lgas/${lgaId}/wards?limit=${limit}`);
         return response.data;
     }
 

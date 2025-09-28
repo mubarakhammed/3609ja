@@ -15,7 +15,7 @@ import {
 import { Picker } from '@react-native-picker/picker';
 
 // Import the SDK - zero config!
-import { nigeriaGeoSDK, State, Lga, Ward, PostalCode, SearchResult } from 'nigeria-geo-sdk';
+import { nigeriaGeoSDK, State, Lga, Ward, PostalCode, SearchResult } from '../sdk';
 
 export default function App() {
   const [selectedTab, setSelectedTab] = useState('api');

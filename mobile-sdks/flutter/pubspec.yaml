@@ -22,52 +22,30 @@ dependencies:
   flutter:
     sdk: flutter
 
-  # HTTP client
-  http: ^0.13.5
-
-  # JSON serialization
-  json_annotation: ^4.8.0
-
-  # Caching
+  # Dependencies sorted alphabetically
+  geolocator: ^9.0.2
   hive: ^2.2.3
   hive_flutter: ^1.1.0
-
-  # Path provider for cache directory
-  path_provider: ^2.0.14
-
-  # Logging
+  http: ^0.13.5
+  json_annotation: ^4.8.0
   logger: ^1.3.0
-
-  # Stream utilities
-  rxdart: ^0.27.7
-
-  # Location services (optional)
-  geolocator: ^9.0.2
-
-  # Permissions (optional)
+  path_provider: ^2.0.14
   permission_handler: ^10.2.0
-
-  # YAML configuration
+  rxdart: ^0.27.7
   yaml: ^3.1.2
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
-  # Code generation
-  build_runner: ^2.4.4
-  json_serializable: ^6.6.2
-  hive_generator: ^2.0.0
-
-  # Linting
-  flutter_lints: ^2.0.1
-
-  # Testing
-  mockito: ^5.4.0
-
-  # Integration testing
   integration_test:
     sdk: flutter
+
+  # Dependencies sorted alphabetically
+  build_runner: ^2.4.4
+  flutter_lints: ^2.0.1
+  hive_generator: ^2.0.0
+  json_serializable: ^6.6.2
+  mockito: ^5.4.0
 
 flutter:
   assets:

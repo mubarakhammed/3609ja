@@ -13,6 +13,7 @@
 [![API Version](https://img.shields.io/badge/API-v1-blue)]()
 [![Rust](https://img.shields.io/badge/rust-1.70+-orange)]()
 [![License](https://img.shields.io/badge/license-MIT-green)]()
+[![GitHub Sponsors](https://img.shields.io/github/sponsors/mubarakhammed?style=flat&logo=github&logoColor=white&label=Sponsor&labelColor=ea4aaa&color=ff69b4)](https://github.com/sponsors/mubarakhammed)
 
 ## What Makes This Special
 
@@ -262,7 +263,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - **Issues:** [GitHub Issues](https://github.com/mubarakhammed/3609ja/issues)
 - **Discussions:** [GitHub Discussions](https://github.com/mubarakhammed/3609ja/discussions)
-- **Email:** [mubarak@example.com](mailto:mubarak@example.com)
+- **Email:** [mubarakhammed00@gmail.com](mailto:mubarakhammed00@gmail.com)
+- **💖 Sponsor:** [GitHub Sponsors](https://github.com/sponsors/mubarakhammed) - Support this project's development!
 
 ---
 
@@ -270,7 +272,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **Star this repo if it helped you!**
 
-[Star](https://github.com/mubarakhammed/3609ja) • [Fork](https://github.com/mubarakhammed/3609ja/fork) • [Docs](https://github.com/mubarakhammed/3609ja#readme) • [Issues](https://github.com/mubarakhammed/3609ja/issues)
+[⭐ Star](https://github.com/mubarakhammed/3609ja) • [🍴 Fork](https://github.com/mubarakhammed/3609ja/fork) • [📖 Docs](https://github.com/mubarakhammed/3609ja#readme) • [🐛 Issues](https://github.com/mubarakhammed/3609ja/issues) • [💖 Sponsor](https://github.com/sponsors/mubarakhammed)
 
 </div>
 

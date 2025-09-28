@@ -1,10 +1,26 @@
 {
     "name": "nigeria-geo-sdk",
-    "version": "1.0.0",
-    "description": "Zero-config React Native SDK for Nigerian geographical data",
-    "main": "index.ts",
-    "types": "index.ts",
+    "version": "1.1.0",
+    "description": "High-performance React Native SDK for comprehensive Nigerian geographic data including states, LGAs, wards, and postal codes. Optimized for fast response times with direct database access.",
+    "main": "index.js",
+    "types": "index.d.ts",
     "react-native": "index.ts",
+    "module": "index.js",
+    "files": [
+        "index.js",
+        "index.d.ts",
+        "config.js",
+        "config.d.ts",
+        "README.md",
+        "LICENSE",
+        "CHANGELOG.md",
+        "package.json"
+    ],
+    "scripts": {
+        "build": "tsc",
+        "prepublishOnly": "npm run build",
+        "test": "node test.js"
+    },
     "keywords": [
         "nigeria",
         "geography",
@@ -13,13 +29,19 @@
         "wards",
         "postal-codes",
         "react-native",
-        "expo"
+        "expo",
+        "maps",
+        "location"
     ],
-    "author": "Nigeria Geo API",
+    "author": "Mubarak Hammed <mubarakhammed00@gmail.com>",
     "license": "MIT",
     "repository": {
         "type": "git",
-        "url": "https://github.com/your-org/nigeria-geo-api.git"
+        "url": "git+https://github.com/mubarakhammed/3609ja.git"
+    },
+    "homepage": "https://github.com/mubarakhammed/3609ja/tree/main/mobile-sdks/react-native",
+    "bugs": {
+        "url": "https://github.com/mubarakhammed/3609ja/issues"
     },
     "peerDependencies": {
         "react": ">=16.8.0",

@@ -1,0 +1,27 @@
+# Pub ignore file to exclude development files from publication
+
+# Build artifacts
+.dart_tool/
+build/
+
+# Flutter-specific
+.flutter-plugins-dependencies
+
+# Development assets that shouldn't be published
+assets/config.yaml
+
+# IDE files
+.vscode/
+.idea/
+*.iml
+
+# Generated files
+**/*.g.dart
+**/*.freezed.dart
+**/*.gr.dart
+
+# Coverage
+coverage/
+
+# Logs
+*.log

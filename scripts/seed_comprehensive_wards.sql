@@ -7864,8 +7864,8 @@ INSERT INTO wards (id, lga_id, name, code) VALUES
 
 -- COMPREHENSIVE WARD STATISTICS
 -- Total Wards Generated: 7,858
--- Northern Nigeria: 3,312 wards
--- Middle Belt: 922 wards
+-- Northern Nigs
+-- Middle Belt: 922 wardseria: 3,312 ward
 -- Southern Nigeria: 3,624 wards
 -- Coverage: All 774 LGAs across 36 states + FCT
 

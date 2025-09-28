@@ -115,48 +115,8 @@ async fn check_database_health(app_state: &AppState) -> bool {
     }
 }
 
-/// Check Redis cache connectivity and basic operations  
-async fn check_cache_health(app_state: &AppState) -> bool {
-    let cache_key = "health_check_test";
-    let cache_value = "ok";
-
-    // Test cache write and read
-    match app_state
-        .cached_services
-        .cache_client()
-        .set(cache_key, &cache_value, 60)
-        .await
-    {
-        Ok(_) => {
-            match app_state
-                .cached_services
-                .cache_client()
-                .get::<String>(cache_key)
-                .await
-            {
-                Ok(Some(value)) if value == cache_value => {
-                    info!("Cache health check passed");
-                    // Cleanup test key
-                    let _ = app_state
-                        .cached_services
-                        .cache_client()
-                        .delete(cache_key)
-                        .await;
-                    true
-                }
-                Ok(_) => {
-                    warn!("Cache health check failed: value mismatch");
-                    false
-                }
-                Err(e) => {
-                    warn!("Cache health check failed on read: {}", e);
-                    false
-                }
-            }
-        }
-        Err(e) => {
-            warn!("Cache health check failed on write: {}", e);
-            false
-        }
-    }
+/// Cache disabled for performance - always returns healthy
+async fn check_cache_health(_app_state: &AppState) -> bool {
+    info!("Cache disabled - skipping cache health check");
+    true
 }

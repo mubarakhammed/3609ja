@@ -113,9 +113,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Initialize API usage repository
     let api_usage_repository = PostgresApiUsageRepository::new(pool.clone());
 
-    // Initialize unified application state with caching
+    // Initialize unified application state without caching
     let app_state = AppState::new(
-        cache,
         state_repository,
         lga_repository,
         ward_repository,

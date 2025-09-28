@@ -18,7 +18,7 @@ pub async fn get_states_handler(
     State(app_state): State<AppState>,
     Query(params): Query<PaginationParams>,
 ) -> AppResult<Json<PaginatedResponse<StateDto>>> {
-    let result = app_state.cached_services.get_states(params).await?;
+    let result = app_state.state_use_cases.get_states(params).await?;
     Ok(Json(result))
 }
 
@@ -26,7 +26,7 @@ pub async fn get_state_by_id_handler(
     State(app_state): State<AppState>,
     Path(id): Path<Uuid>,
 ) -> AppResult<Json<Option<StateDto>>> {
-    let result = app_state.cached_services.get_state_by_id(id).await?;
+    let result = app_state.state_use_cases.get_state_by_id(id).await?;
     Ok(Json(result))
 }
 
@@ -37,7 +37,7 @@ pub async fn get_lgas_by_state_handler(
     Query(params): Query<PaginationParams>,
 ) -> AppResult<Json<PaginatedResponse<LgaDto>>> {
     let result = app_state
-        .cached_services
+        .lga_use_cases
         .get_lgas_by_state(state_id, params)
         .await?;
     Ok(Json(result))
@@ -47,7 +47,7 @@ pub async fn get_lga_by_id_handler(
     State(app_state): State<AppState>,
     Path(id): Path<Uuid>,
 ) -> AppResult<Json<Option<LgaDto>>> {
-    let result = app_state.cached_services.get_lga_by_id(id).await?;
+    let result = app_state.lga_use_cases.get_lga_by_id(id).await?;
     Ok(Json(result))
 }
 
@@ -58,7 +58,7 @@ pub async fn get_wards_by_lga_handler(
     Query(params): Query<PaginationParams>,
 ) -> AppResult<Json<PaginatedResponse<WardDto>>> {
     let result = app_state
-        .cached_services
+        .ward_use_cases
         .get_wards_by_lga(lga_id, params)
         .await?;
     Ok(Json(result))
@@ -68,7 +68,7 @@ pub async fn get_ward_by_id_handler(
     State(app_state): State<AppState>,
     Path(id): Path<Uuid>,
 ) -> AppResult<Json<Option<WardDto>>> {
-    let result = app_state.cached_services.get_ward_by_id(id).await?;
+    let result = app_state.ward_use_cases.get_ward_by_id(id).await?;
     Ok(Json(result))
 }
 
@@ -79,7 +79,7 @@ pub async fn get_postal_codes_by_ward_handler(
     Query(params): Query<PaginationParams>,
 ) -> AppResult<Json<PaginatedResponse<PostalCodeDto>>> {
     let result = app_state
-        .cached_services
+        .postal_code_use_cases
         .get_postal_codes_by_ward(ward_id, params)
         .await?;
     Ok(Json(result))
@@ -89,7 +89,10 @@ pub async fn get_postal_code_by_id_handler(
     State(app_state): State<AppState>,
     Path(id): Path<Uuid>,
 ) -> AppResult<Json<Option<PostalCodeDto>>> {
-    let result = app_state.cached_services.get_postal_code_by_id(id).await?;
+    let result = app_state
+        .postal_code_use_cases
+        .get_postal_code_by_id(id)
+        .await?;
     Ok(Json(result))
 }
 
@@ -98,7 +101,7 @@ pub async fn get_postal_code_by_code_handler(
     Path(code): Path<String>,
 ) -> AppResult<Json<Option<PostalCodeDto>>> {
     let result = app_state
-        .cached_services
+        .postal_code_use_cases
         .get_postal_code_by_code(&code)
         .await?;
     Ok(Json(result))
@@ -118,8 +121,7 @@ pub async fn find_nearby_postal_codes_handler(
     let coordinates = crate::domain::value_objects::Coordinates::new(params.lat, params.lng)?;
     let radius = params.radius_km.unwrap_or(10.0);
     let result = app_state
-        .cached_services
-        .postal_code_use_cases()
+        .postal_code_use_cases
         .find_near_coordinates(coordinates, radius)
         .await?;
     Ok(Json(result))
@@ -199,7 +201,7 @@ pub async fn search_all_handler(
     axum::extract::Query(search_params): axum::extract::Query<SearchParams>,
 ) -> AppResult<Json<SearchResultDto>> {
     let result = app_state
-        .cached_services
+        .search_use_cases
         .search_all(&search_params.query, params)
         .await?;
     Ok(Json(result))
@@ -211,8 +213,7 @@ pub async fn search_states_handler(
     axum::extract::Query(search_params): axum::extract::Query<SearchParams>,
 ) -> AppResult<Json<Vec<StateDto>>> {
     let result = app_state
-        .cached_services
-        .search_use_cases()
+        .search_use_cases
         .search_states(&search_params.query, params)
         .await?;
     Ok(Json(result))
@@ -224,8 +225,7 @@ pub async fn search_lgas_handler(
     axum::extract::Query(search_params): axum::extract::Query<SearchParams>,
 ) -> AppResult<Json<Vec<LgaDto>>> {
     let result = app_state
-        .cached_services
-        .search_use_cases()
+        .search_use_cases
         .search_lgas(&search_params.query, params)
         .await?;
     Ok(Json(result))
@@ -237,8 +237,7 @@ pub async fn search_wards_handler(
     axum::extract::Query(search_params): axum::extract::Query<SearchParams>,
 ) -> AppResult<Json<Vec<WardDto>>> {
     let result = app_state
-        .cached_services
-        .search_use_cases()
+        .search_use_cases
         .search_wards(&search_params.query, params)
         .await?;
     Ok(Json(result))
@@ -250,8 +249,7 @@ pub async fn search_postal_codes_handler(
     axum::extract::Query(search_params): axum::extract::Query<SearchParams>,
 ) -> AppResult<Json<Vec<PostalCodeDto>>> {
     let result = app_state
-        .cached_services
-        .search_use_cases()
+        .search_use_cases
         .search_postal_codes(&search_params.query, params)
         .await?;
     Ok(Json(result))

@@ -1,3 +1,5 @@
+import ConfigLoader from './config';
+
 // TypeScript Types
 export interface State {
     id: string;
@@ -62,22 +64,45 @@ export interface Config {
 // Core SDK Class
 class NigeriaGeoSDK {
     private static instance: NigeriaGeoSDK;
-    private config: Config;
+    private config: Config = {} as Config;
 
-    private constructor(config?: Partial<Config>) {
-        // Zero-config defaults matching Flutter SDK
-        this.config = {
-            baseUrl: 'http://localhost:3000',
-            timeout: 30000,
-            enableCaching: true,
-            enableLogging: true,
-            ...config
-        };
+    private constructor(config?: Partial<Config>, environment?: string) {
+        // Load configuration from file with fallback to provided config
+        this.initializeConfig(config, environment);
     }
 
-    static getInstance(config?: Partial<Config>): NigeriaGeoSDK {
+    private async initializeConfig(config?: Partial<Config>, environment?: string): Promise<void> {
+        try {
+            const loadedConfig = await ConfigLoader.loadConfig(environment);
+            this.config = {
+                ...loadedConfig,
+                ...config // Override with any provided config
+            };
+        } catch (error) {
+            console.warn('Failed to load config, using defaults:', error);
+            this.config = {
+                baseUrl: 'http://localhost:3000',
+                timeout: 30000,
+                enableCaching: true,
+                enableLogging: true,
+                ...config
+            };
+        }
+    }
+
+    static getInstance(config?: Partial<Config>, environment?: string): NigeriaGeoSDK {
         if (!NigeriaGeoSDK.instance) {
-            NigeriaGeoSDK.instance = new NigeriaGeoSDK(config);
+            NigeriaGeoSDK.instance = new NigeriaGeoSDK(config, environment);
+        }
+        return NigeriaGeoSDK.instance;
+    }
+
+    // Method to reconfigure the SDK
+    static async reconfigure(config?: Partial<Config>, environment?: string): Promise<NigeriaGeoSDK> {
+        if (NigeriaGeoSDK.instance) {
+            await NigeriaGeoSDK.instance.initializeConfig(config, environment);
+        } else {
+            NigeriaGeoSDK.instance = new NigeriaGeoSDK(config, environment);
         }
         return NigeriaGeoSDK.instance;
     }

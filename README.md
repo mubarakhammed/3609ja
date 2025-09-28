@@ -19,7 +19,6 @@
 - **Complete Nigerian Data** - All 37 states, 774 LGAs, 7,858 wards & postal codes
 - **High Performance** - Built with Rust + Redis caching for blazing speed
 - **Mobile SDKs** - Flutter, React Native, iOS & Android SDKs included
-- **Production Ready** - API usage tracking, monitoring, and enterprise features
 - **Clean Architecture** - Domain-driven design with proper separation of concerns
 - **Real-Time Analytics** - Comprehensive API usage tracking and analytics
 - **RESTful API** - Well-documented endpoints with OpenAPI/Swagger support
@@ -108,17 +107,6 @@ npm install nigeria-geo-sdk
 import { NigeriaGeoSDK } from 'nigeria-geo-sdk';
 const sdk = new NigeriaGeoSDK();
 const states = await sdk.getStates();
-```
-
-### iOS SDK
-```swift
-dependencies: [
-    .package(url: "https://github.com/mubarakhammed/3609ja", from: "1.0.0")
-]
-
-// Usage
-let sdk = NigeriaGeoSDK()
-let states = try await sdk.getStates()
 ```
 
 ## API Endpoints
@@ -224,17 +212,6 @@ cargo test --coverage
 ./scripts/test_api.sh
 ```
 
-## Performance Features
-
-- **Redis Caching** - Sub-millisecond response times
-- **Connection Pooling** - Efficient database connections  
-- **Async Processing** - Non-blocking I/O operations
-- **Usage Analytics** - Real-time API monitoring
-- **Rate Limiting** - Protection against abuse
-- **Health Checks** - Automated monitoring
-
-## Production Deployment
-
 
 ### Environment Variables
 ```bash
@@ -252,16 +229,6 @@ REDIS_URL=redis://localhost:6379
 JWT_SECRET=your-secure-secret
 CORS_ORIGIN=https://yourdomain.com
 ```
-
-## API Usage Analytics
-
-Monitor your API with comprehensive analytics:
-
-- **Request Volume** - Track API calls over time
-- **Response Times** - Monitor performance metrics  
-- **Top Endpoints** - Identify most popular endpoints
-- **Error Rates** - Track and debug issues
-- **Geographic Usage** - See where requests originate
 
 ## Contributing
 
@@ -283,14 +250,6 @@ We welcome contributions! Here's how:
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## Roadmap
-
-- [ ] **GraphQL API** - Alternative query interface
-- [ ] **WebSocket Support** - Real-time updates
-- [ ] **Machine Learning** - Address prediction & correction
-- [ ] **Geocoding** - Latitude/longitude coordinates
-- [ ] **Batch Operations** - Bulk data processing
-- [ ] **Admin Dashboard** - Web-based management interface
 
 ## Acknowledgments
 

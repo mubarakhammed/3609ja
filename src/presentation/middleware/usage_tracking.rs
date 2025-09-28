@@ -12,7 +12,7 @@ use crate::domain::repositories::api_usage_repository::ApiUsageRepository;
 
 /// Middleware for tracking API usage
 pub async fn track_usage_middleware(
-    ConnectInfo(addr): ConnectInfo<SocketAddr>,
+    connect_info: Option<ConnectInfo<SocketAddr>>,
     headers: HeaderMap,
     request: Request,
     next: Next,
@@ -53,12 +53,17 @@ pub async fn track_usage_middleware(
         .and_then(|h| h.to_str().ok())
         .and_then(|s| s.parse::<u32>().ok());
 
+    // Extract IP address from ConnectInfo or use fallback
+    let ip_address = connect_info
+        .map(|ConnectInfo(addr)| addr.ip().to_string())
+        .unwrap_or_else(|| "unknown".to_string());
+
     // Create usage record
     let usage = ApiUsage::new(
         uri,
         method,
         user_agent,
-        addr.ip().to_string(),
+        ip_address,
         status_code,
         response_time,
         request_size,

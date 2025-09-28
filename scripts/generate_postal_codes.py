@@ -12,11 +12,11 @@ import random
 
 # Database configuration
 DB_CONFIG = {
-    'host': 'localhost',
+    'host': 'prod-3609ja.postgres.database.azure.com',
     'port': 5432,
-    'database': 'nigeria_geo',
-    'user': 'nigeria_user',
-    'password': 'nigeria_pass'
+    'database': 'postgres',
+    'user': 'mubarak',
+    'password': 'TafawaBalewa123!'
 }
 
 # Nigerian postal code ranges by region/state

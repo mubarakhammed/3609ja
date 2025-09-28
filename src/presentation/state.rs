@@ -3,6 +3,7 @@ use crate::infrastructure::{
     cached_services::CachedServices,
     repositories::{
         address_repository_impl::PostgresAddressRepository,
+        api_usage_repository_impl::PostgresApiUsageRepository,
         lga_repository_impl::PostgresLgaRepository,
         postal_code_repository_impl::PostgresPostalCodeRepository,
         state_repository_impl::PostgresStateRepository,
@@ -21,6 +22,8 @@ pub struct AppState {
     pub cached_services: CachedServices,
     /// Non-cached services for operations that shouldn't be cached
     pub address_use_cases: Arc<AddressUseCases<PostgresAddressRepository>>,
+    /// API usage tracking repository
+    pub api_usage_repository: Arc<PostgresApiUsageRepository>,
     /// Database connection pool for health checks and direct access
     pub pool: PgPool,
 }
@@ -33,6 +36,7 @@ impl AppState {
         ward_repository: PostgresWardRepository,
         postal_code_repository: PostgresPostalCodeRepository,
         address_repository: PostgresAddressRepository,
+        api_usage_repository: PostgresApiUsageRepository,
         pool: PgPool,
     ) -> Self {
         use crate::application::use_cases::{
@@ -65,10 +69,12 @@ impl AppState {
 
         // Address use cases don't need caching (they're for validation/complex operations)
         let address_use_cases = Arc::new(AddressUseCases::new(address_repository));
+        let api_usage_repository = Arc::new(api_usage_repository);
 
         Self {
             cached_services,
             address_use_cases,
+            api_usage_repository,
             pool,
         }
     }

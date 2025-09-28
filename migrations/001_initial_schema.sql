@@ -1,9 +1,6 @@
--- Enable UUID extension
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-
--- Create states table
+-- Create states table (UUID generation will be handled by application)
 CREATE TABLE states (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY,
     name TEXT NOT NULL UNIQUE,
     code VARCHAR(10) NOT NULL UNIQUE,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
@@ -12,7 +9,7 @@ CREATE TABLE states (
 
 -- Create LGAs table
 CREATE TABLE lgas (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY,
     state_id UUID NOT NULL REFERENCES states(id) ON DELETE CASCADE,
     name TEXT NOT NULL,
     code VARCHAR(20) NOT NULL UNIQUE,
@@ -23,7 +20,7 @@ CREATE TABLE lgas (
 
 -- Create wards table
 CREATE TABLE wards (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY,
     lga_id UUID NOT NULL REFERENCES lgas(id) ON DELETE CASCADE,
     name TEXT NOT NULL,
     code VARCHAR(30) NOT NULL UNIQUE,
@@ -34,7 +31,7 @@ CREATE TABLE wards (
 
 -- Create postal codes table
 CREATE TABLE postal_codes (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY,
     ward_id UUID NOT NULL REFERENCES wards(id) ON DELETE CASCADE,
     postal_code VARCHAR(10) NOT NULL,
     lat DOUBLE PRECISION,

@@ -12,9 +12,15 @@ use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 // use utoipa_swagger_ui::SwaggerUi;
 
 use nigeria_geo_api::{
+    api::usage_analytics::{
+        cleanup_old_records_handler, get_hourly_stats_handler, get_status_code_stats_handler,
+        get_top_endpoints_handler, get_usage_by_api_key_handler, get_usage_by_ip_handler,
+        get_usage_stats_handler, refresh_stats_views_handler,
+    },
     config::Config,
     infrastructure::repositories::{
         address_repository_impl::PostgresAddressRepository,
+        api_usage_repository_impl::PostgresApiUsageRepository,
         lga_repository_impl::PostgresLgaRepository,
         postal_code_repository_impl::PostgresPostalCodeRepository,
         state_repository_impl::PostgresStateRepository,
@@ -31,6 +37,7 @@ use nigeria_geo_api::{
             search_lgas_handler, search_postal_codes_handler, search_states_handler,
             search_wards_handler, validate_address_handler,
         },
+        middleware::usage_tracking::track_usage_middleware,
         state::AppState,
     },
 };
@@ -84,6 +91,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         Box::new(postal_code_repository.clone()),
     );
 
+    // Initialize API usage repository
+    let api_usage_repository = PostgresApiUsageRepository::new(pool.clone());
+
     // Initialize unified application state with caching
     let app_state = AppState::new(
         cache,
@@ -92,6 +102,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         ward_repository,
         postal_code_repository,
         address_repository,
+        api_usage_repository,
         pool.clone(),
     );
 
@@ -150,9 +161,46 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             "/api/v1/search/postal-codes",
             get(search_postal_codes_handler),
         )
+        // API Usage Analytics endpoints
+        .route(
+            "/api/v1/analytics/usage-stats",
+            get(get_usage_stats_handler),
+        )
+        .route(
+            "/api/v1/analytics/top-endpoints",
+            get(get_top_endpoints_handler),
+        )
+        .route(
+            "/api/v1/analytics/hourly-stats",
+            get(get_hourly_stats_handler),
+        )
+        .route(
+            "/api/v1/analytics/status-codes",
+            get(get_status_code_stats_handler),
+        )
+        .route(
+            "/api/v1/analytics/usage-by-ip",
+            get(get_usage_by_ip_handler),
+        )
+        .route(
+            "/api/v1/analytics/usage-by-api-key",
+            get(get_usage_by_api_key_handler),
+        )
+        .route(
+            "/api/v1/analytics/refresh-stats",
+            post(refresh_stats_views_handler),
+        )
+        .route(
+            "/api/v1/analytics/cleanup",
+            post(cleanup_old_records_handler),
+        )
         // OpenAPI documentation (temporarily disabled)
         // .route("/api-docs/openapi.json", get(openapi_json_handler))
         // .merge(SwaggerUi::new("/docs").url("/api-docs/openapi.json", ApiDoc::openapi()))
+        .layer(axum::middleware::from_fn_with_state(
+            app_state.clone(),
+            track_usage_middleware,
+        ))
         .layer(cors)
         .layer(TraceLayer::new_for_http())
         .with_state(app_state);

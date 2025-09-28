@@ -5,7 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.1.0] - 2024-12-28
+# Changelog
+
+All notable changes to the Nigeria Geo SDK will be documented in this file.
+
+## [1.1.1] - 2025-09-28
+
+### Fixed
+- **CRITICAL**: Removed unnecessary `assets/config.yaml` requirement from pubspec.yaml
+- Fixed iOS build error: "No file or variants found for asset: packages/nigeria_geo_sdk/assets/config.yaml"
+- SDK now works completely without any configuration files (as intended)
+
+### Notes
+- This is a critical hotfix for the asset loading issue
+- All functionality remains the same - SDK uses built-in optimized configuration
+- Users who were getting build errors should update to this version immediately
+
+## [1.1.0] - 2025-09-28
 
 ### Added
 - Performance optimizations with direct database access architecture

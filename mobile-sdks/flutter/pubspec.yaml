@@ -1,6 +1,6 @@
 name: nigeria_geo_sdk
-description: High-performance Flutter SDK for comprehensive Nigerian geographic data including states, LGAs, wards, and postal codes. Optimized for fast response times with direct database access.
-version: 1.1.0
+description: High-performance Flutter SDK for comprehensive Nigerian geographic data including states, LGAs, wards, and postal codes. Zero configuration required.
+version: 1.1.1
 homepage: https://github.com/mubarakhammed/3609ja/tree/main/mobile-sdks/flutter
 repository: https://github.com/mubarakhammed/3609ja
 documentation: https://github.com/mubarakhammed/3609ja/blob/main/mobile-sdks/flutter/README.md
@@ -48,7 +48,6 @@ dev_dependencies:
   mockito: ^5.4.0
 
 flutter:
-  assets:
-    - assets/config.yaml
+  # SDK uses built-in configuration - no assets needed
 # Uncomment if dependency overrides are needed
 # dependency_overrides:
